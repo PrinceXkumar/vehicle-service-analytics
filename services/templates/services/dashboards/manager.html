@@ -1,0 +1,61 @@
+{% extends "services/base.html" %}
+{% block content %}
+<div class="row">
+  <div class="col-12">
+    <div class="card shadow-sm">
+      <div class="card-body">
+        <h4 class="mb-1">Welcome, {{ request.user.first_name|default:request.user.username }}</h4>
+        <p class="text-muted">Manager Dashboard</p>
+        <div class="row g-3 mt-2">
+          <div class="col-md-4">
+            <div class="card border-0 bg-light">
+              <div class="card-body">
+                <h6>Total Services</h6>
+                <div class="display-6 fw-semibold">{{ total_services }}</div>
+              </div>
+            </div>
+          </div>
+          <div class="col-md-4">
+            <div class="card border-0 bg-light">
+              <div class="card-body">
+                <h6>Pending</h6>
+                <div class="display-6 fw-semibold">{{ pending_jobs }}</div>
+              </div>
+            </div>
+          </div>
+          <div class="col-md-4">
+            <div class="card border-0 bg-light">
+              <div class="card-body">
+                <h6>Completed</h6>
+                <div class="display-6 fw-semibold">{{ completed_jobs }}</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="card mt-4 border-0 bg-light">
+          <div class="card-body">
+            <h5 class="mb-3">Pending Services</h5>
+            <ul class="mb-0">
+              {% for s in pending_list %}
+                <li>
+                  {{ s.get_service_type_display }}
+                  {% if s.assigned_mechanic %}
+                    - Assigned to {{ s.assigned_mechanic.first_name|default:s.assigned_mechanic.username }}
+                  {% else %}
+                    - <em>Unassigned</em>
+                  {% endif %}
+                  <a class="btn btn-sm btn-outline-primary ms-2" href="{% url 'services_assign' s.id %}">Assign</a>
+                </li>
+              {% empty %}
+                <li>No pending services.</li>
+              {% endfor %}
+            </ul>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}
+

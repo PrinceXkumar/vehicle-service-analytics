@@ -1,0 +1,25 @@
+{% extends "services/base.html" %}
+{% block content %}
+<div class="row justify-content-center">
+  <div class="col-md-6">
+    <div class="card shadow-sm">
+      <div class="card-body p-4">
+        <h4 class="mb-3">Book a Service</h4>
+        <form method="post">
+          {% csrf_token %}
+          <div class="mb-3">
+            <label class="form-label" for="id_service_type">Service Type</label>
+            {{ form.service_type }}
+            {% if form.service_type.errors %}
+              <div class="text-danger small mt-1">{{ form.service_type.errors|striptags }}</div>
+            {% endif %}
+          </div>
+          <button type="submit" class="btn btn-primary">Submit</button>
+          <a href="{% url 'dashboard_customer' %}" class="btn btn-outline-secondary ms-2">Cancel</a>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}
+

@@ -1,0 +1,41 @@
+{% extends "services/base.html" %}
+{% block content %}
+<div class="row">
+  <div class="col-12">
+    <div class="card shadow-sm">
+      <div class="card-body">
+        <h4 class="mb-1">Welcome, {{ welcome_name }}!</h4>
+        <p class="text-muted">Customer Dashboard</p>
+        <div class="row g-3 mt-2">
+          <div class="col-md-6">
+            <div class="card border-0 bg-light">
+              <div class="card-body">
+                <h5>Book a Service</h5>
+                <p class="mb-2">Schedule your next service appointment.</p>
+                <a class="btn btn-primary" href="{% url 'services_book' %}">Book Service</a>
+              </div>
+            </div>
+          </div>
+          <div class="col-md-6">
+            <div class="card border-0 bg-light">
+              <div class="card-body">
+                <h5>Service History</h5>
+                <p class="mb-2">{{ recent_services_note }}</p>
+                <ul class="mb-0">
+                  {% for s in recent_services %}
+                    <li>{{ s.get_service_type_display }} - <span class="badge bg-secondary">{{ s.get_status_display }}</span></li>
+                  {% empty %}
+                    <li>No recent services.</li>
+                  {% endfor %}
+                </ul>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  
+</div>
+{% endblock %}
+

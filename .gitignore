@@ -1,0 +1,63 @@
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+*.log
+
+# Caches
+.cache/
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.pytype/
+
+# Env
+venv/
+.env
+.venv/
+.python-version
+pip-wheel-metadata/
+__pypackages__/
+
+# Django
+db.sqlite3
+*.sqlite3
+media/
+staticfiles/
+
+# IDE
+.vscode/
+.idea/
+*.code-workspace
+
+# OS
+Thumbs.db
+.DS_Store
+# Python
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+*.sqlite3
+*.log
+
+# Virtual environment
+venv/
+
+# Django specific
+db.sqlite3
+*.pot
+*.mo
+*.pyc
+*.pyo
+__pycache__/
+media/
+staticfiles/
+
+# Environment variables
+.env
+
+# Mac / Windows
+.DS_Store
+Thumbs.db
