@@ -17,6 +17,12 @@ A Django web app for managing vehicle service workflows with role-based dashboar
 - Job assignment (Manager)
 - Status updates (Mechanic)
 - Django Admin: Users, Profiles (inline), Services
+- **Analytics & Reporting System**:
+  - Manager Analytics: Interactive charts (bar, pie, doughnut) for service trends, status distribution, top performers
+  - Customer Analytics: Personal service history with line charts and yearly tracking
+  - Mechanic Analytics: Performance metrics, completion rates, and job distribution
+  - Export functionality: CSV/Excel reports with filtering options
+  - Sample data generation for testing
 
 ## Getting Started
 1) Create and activate a virtualenv (Windows example)
@@ -42,6 +48,11 @@ pip install django djangorestframework
 ./venv/Scripts/python.exe manage.py createsuperuser
 ```
 
+5) Generate sample data for testing analytics (optional)
+```
+./venv/Scripts/python.exe manage.py populate_sample_data --count 30
+```
+
 ## Usage Overview
 - Signup at `/signup` (choose role)
 - Login at `/login`
@@ -49,6 +60,10 @@ pip install django djangorestframework
   - Customer: `/dashboard/customer/`
   - Mechanic: `/dashboard/mechanic/`
   - Manager: `/dashboard/manager/`
+- **Analytics dashboards** available at `/analytics/` (role-based routing):
+  - Manager: `/analytics/manager/` - Comprehensive analytics with charts
+  - Customer: `/analytics/customer/` - Personal service history
+  - Mechanic: `/analytics/mechanic/` - Performance metrics
 
 ### Customer
 - Book a service: `/services/book/`
@@ -88,6 +103,8 @@ Note: A historical `ServiceRecord` model also exists for extended service detail
 - Mechanic work logs and time tracking
 - Email/SMS notifications
 
+
+
 ## Part-by-Part Changelog
 - Part 1: Initial Django project setup and base pages
   - Project scaffolding, base URLs, home page, basic templates
@@ -119,11 +136,14 @@ vehicle_service_analytics/
 │  └─ asgi.py
 └─ services/
    ├─ models.py          # Profile, Vehicle, ServiceRecord, Service
-   ├─ views.py           # Auth, dashboards, booking/assign/update flows
+   ├─ views.py           # Auth, dashboards, booking/assign/update flows, analytics
    ├─ urls.py
    ├─ forms.py           # SignUp, BookService, AssignMechanic, UpdateStatus
    ├─ admin.py           # User inline Profile, Service admin
    ├─ signals.py         # Auto-create Profile on User create
+   ├─ analytics.py       # Analytics engine and report generation
+   ├─ management/commands/
+   │  └─ populate_sample_data.py  # Sample data generation
    └─ templates/services/
       ├─ base.html
       ├─ login.html
@@ -132,6 +152,10 @@ vehicle_service_analytics/
       │  ├─ customer.html
       │  ├─ mechanic.html
       │  └─ manager.html
+      ├─ analytics/
+      │  ├─ manager_analytics.html
+      │  ├─ customer_analytics.html
+      │  └─ mechanic_analytics.html
       ├─ services_book.html
       ├─ services_assign.html
       └─ services_update_status.html
@@ -244,3 +268,28 @@ This section documents what changed in each part, with intended commit messages 
   - Admin for `Service` and inline `Profile` on `User`
 - Key files: `services/models.py`, `services/forms.py`, `services/views.py`, `services/urls.py`, `services/templates/services/services_*.html`, `services/templates/services/dashboards/*.html`, `services/admin.py`
 
+### Part 6 — Analytics & Reporting System
+- Commit: "Added Part 6: Analytics dashboard with charts and reports"
+- Highlights:
+  - **Manager Analytics Dashboard** (`/analytics/manager/`):
+    - Interactive charts using Chart.js (bar, pie, doughnut charts)
+    - Monthly service trends, status distribution, service type breakdown
+    - Top performers table and most popular service types
+    - Export functionality (CSV/Excel) with filtering options
+  - **Customer Analytics Dashboard** (`/analytics/customer/`):
+    - Personal service history with line charts
+    - Service status overview and quick actions
+    - Yearly service tracking and insights
+  - **Mechanic Analytics Dashboard** (`/analytics/mechanic/`):
+    - Performance metrics and completion rates
+    - Job status distribution with visual charts
+    - Monthly performance insights and progress tracking
+  - **Export System** (`/analytics/export/`):
+    - CSV and Excel report generation
+    - Status-based filtering (all, pending, completed, in_progress)
+    - Professional report formatting
+  - **Sample Data Generation**:
+    - Management command `populate_sample_data` for testing
+    - Realistic test data with proper distributions
+- Key files: `services/analytics.py`, `services/views.py` (analytics views), `services/templates/services/analytics/*.html`, `services/management/commands/populate_sample_data.py`, `services/urls.py` (analytics routes)
+- Technologies: Chart.js, Django ORM aggregations, CSV/Excel export, Bootstrap 5
