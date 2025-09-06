@@ -14,5 +14,14 @@ urlpatterns = [
     path('services/book/', views.book_service, name='services_book'),
     path('services/<int:service_id>/assign/', views.assign_mechanic, name='services_assign'),
     path('services/<int:service_id>/status/', views.update_service_status, name='services_update_status'),
+    
+    # Analytics URLs
+    path('analytics/', views.analytics_redirect, name='analytics'),
+    path('analytics/manager/', views.analytics_dashboard, name='analytics_dashboard'),
+    path('analytics/customer/', views.customer_analytics, name='customer_analytics'),
+    path('analytics/mechanic/', views.mechanic_analytics, name='mechanic_analytics'),
+    path('analytics/api/data/', views.analytics_data_api, name='analytics_data_api'),
+    path('analytics/export/', views.export_report, name='export_report'),
+    
     path('', views.home, name='home'),
 ]

@@ -1,9 +1,13 @@
 from django.shortcuts import render, redirect
 from django.contrib.auth import login
 from django.contrib.auth.decorators import login_required
+from django.http import JsonResponse, HttpResponse
+from django.db.models import Q
+import json
 from .forms import SignUpForm, BookServiceForm, AssignMechanicForm, UpdateServiceStatusForm
 from .models import Profile, Service
 from .decorators import role_required
+from .analytics import ServiceAnalytics, ReportGenerator
 
 def signup_view(request):
     if request.method == "POST":
@@ -132,3 +136,107 @@ def update_service_status(request, service_id):
     else:
         form = UpdateServiceStatusForm(instance=service)
     return render(request, 'services/services_update_status.html', {"form": form, "service": service})
+
+
+# Analytics Views
+
+@login_required
+@role_required([Profile.ROLE_MANAGER])
+def analytics_dashboard(request):
+    """Manager analytics dashboard with charts and insights."""
+    insights = ServiceAnalytics.get_manager_insights()
+    
+    context = {
+        'insights': insights,
+        'monthly_data_json': json.dumps(insights['monthly_data']),
+        'status_distribution_json': json.dumps(insights['status_distribution']),
+        'service_type_distribution_json': json.dumps(insights['service_type_distribution']),
+    }
+    
+    return render(request, 'services/analytics/manager_analytics.html', context)
+
+
+@login_required
+@role_required([Profile.ROLE_MANAGER])
+def analytics_data_api(request):
+    """API endpoint for analytics data (for AJAX requests)."""
+    data_type = request.GET.get('type', 'monthly')
+    
+    if data_type == 'monthly':
+        data = ServiceAnalytics.get_monthly_service_counts()
+    elif data_type == 'status':
+        data = ServiceAnalytics.get_service_status_distribution()
+    elif data_type == 'service_types':
+        data = ServiceAnalytics.get_service_type_distribution()
+    elif data_type == 'mechanic_performance':
+        data = ServiceAnalytics.get_mechanic_performance()
+    else:
+        data = {}
+    
+    return JsonResponse(data)
+
+
+@login_required
+@role_required([Profile.ROLE_MANAGER])
+def export_report(request):
+    """Export services report in various formats."""
+    format_type = request.GET.get('format', 'csv')
+    status_filter = request.GET.get('status', 'all')
+    
+    # Build queryset based on filters
+    services = Service.objects.all()
+    
+    if status_filter != 'all':
+        services = services.filter(status=status_filter)
+    
+    # Generate report based on format
+    if format_type == 'csv':
+        return ReportGenerator.generate_csv_report(services, f"services_report_{status_filter}.csv")
+    elif format_type == 'excel':
+        return ReportGenerator.generate_excel_report(services, f"services_report_{status_filter}.xlsx")
+    else:
+        return JsonResponse({'error': 'Unsupported format'}, status=400)
+
+
+@login_required
+@role_required([Profile.ROLE_CUSTOMER])
+def customer_analytics(request):
+    """Customer analytics dashboard with personal insights."""
+    insights = ServiceAnalytics.get_customer_insights(request.user)
+    
+    context = {
+        'insights': insights,
+        'service_history_json': json.dumps(insights['service_history'])
+    }
+    
+    return render(request, 'services/analytics/customer_analytics.html', context)
+
+
+@login_required
+@role_required([Profile.ROLE_MECHANIC])
+def mechanic_analytics(request):
+    """Mechanic analytics dashboard with performance insights."""
+    insights = ServiceAnalytics.get_mechanic_insights(request.user)
+    
+    context = {
+        'insights': insights
+    }
+    
+    return render(request, 'services/analytics/mechanic_analytics.html', context)
+
+
+@login_required
+def analytics_redirect(request):
+    """Redirect to appropriate analytics dashboard based on user role."""
+    profile = getattr(request.user, 'profile', None)
+    if not profile:
+        return redirect('home')
+    
+    if profile.role == Profile.ROLE_CUSTOMER:
+        return redirect('customer_analytics')
+    elif profile.role == Profile.ROLE_MECHANIC:
+        return redirect('mechanic_analytics')
+    elif profile.role == Profile.ROLE_MANAGER:
+        return redirect('analytics_dashboard')
+    else:
+        return redirect('home')

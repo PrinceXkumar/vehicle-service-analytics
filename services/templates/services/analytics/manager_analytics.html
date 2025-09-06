@@ -1,0 +1,253 @@
+{% extends "services/base.html" %}
+{% block content %}
+<div class="row">
+  <div class="col-12">
+    <div class="card shadow-sm">
+      <div class="card-body">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+          <h4 class="mb-0">📊 Analytics Dashboard</h4>
+          <div class="btn-group">
+            <a href="{% url 'export_report' %}?format=csv" class="btn btn-outline-success btn-sm">
+              <i class="fas fa-download"></i> Export CSV
+            </a>
+            <a href="{% url 'export_report' %}?format=excel" class="btn btn-outline-primary btn-sm">
+              <i class="fas fa-file-excel"></i> Export Excel
+            </a>
+          </div>
+        </div>
+
+        <!-- Key Metrics Cards -->
+        <div class="row g-3 mb-4">
+          <div class="col-md-3">
+            <div class="card border-0 bg-primary text-white">
+              <div class="card-body">
+                <h6>Total Services</h6>
+                <div class="display-6 fw-semibold">{{ insights.total_services }}</div>
+              </div>
+            </div>
+          </div>
+          <div class="col-md-3">
+            <div class="card border-0 bg-success text-white">
+              <div class="card-body">
+                <h6>Completed</h6>
+                <div class="display-6 fw-semibold">{{ insights.completed_services }}</div>
+              </div>
+            </div>
+          </div>
+          <div class="col-md-3">
+            <div class="card border-0 bg-warning text-dark">
+              <div class="card-body">
+                <h6>Pending</h6>
+                <div class="display-6 fw-semibold">{{ insights.pending_services }}</div>
+              </div>
+            </div>
+          </div>
+          <div class="col-md-3">
+            <div class="card border-0 bg-info text-white">
+              <div class="card-body">
+                <h6>This Month</h6>
+                <div class="display-6 fw-semibold">{{ insights.this_month_services }}</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Charts Row -->
+        <div class="row g-4 mb-4">
+          <!-- Monthly Services Chart -->
+          <div class="col-md-8">
+            <div class="card border-0 bg-light">
+              <div class="card-body">
+                <h5 class="card-title">📈 Services Per Month</h5>
+                <canvas id="monthlyChart" width="400" height="200"></canvas>
+              </div>
+            </div>
+          </div>
+
+          <!-- Status Distribution Pie Chart -->
+          <div class="col-md-4">
+            <div class="card border-0 bg-light">
+              <div class="card-body">
+                <h5 class="card-title">🥧 Status Distribution</h5>
+                <canvas id="statusChart" width="300" height="200"></canvas>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Service Types and Performance Row -->
+        <div class="row g-4 mb-4">
+          <!-- Service Types Chart -->
+          <div class="col-md-6">
+            <div class="card border-0 bg-light">
+              <div class="card-body">
+                <h5 class="card-title">🔧 Service Types</h5>
+                <canvas id="serviceTypeChart" width="400" height="200"></canvas>
+              </div>
+            </div>
+          </div>
+
+          <!-- Mechanic Performance -->
+          <div class="col-md-6">
+            <div class="card border-0 bg-light">
+              <div class="card-body">
+                <h5 class="card-title">👨‍🔧 Top Performers</h5>
+                <div class="table-responsive">
+                  <table class="table table-sm">
+                    <thead>
+                      <tr>
+                        <th>Mechanic</th>
+                        <th>Jobs</th>
+                        <th>Rate</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {% for mechanic in insights.busiest_mechanics %}
+                      <tr>
+                        <td>{{ mechanic.assigned_mechanic__first_name|default:mechanic.assigned_mechanic__username }}</td>
+                        <td>{{ mechanic.total_jobs }}</td>
+                        <td>
+                          <div class="progress" style="height: 20px;">
+                            <div class="progress-bar" role="progressbar" 
+                                 style="width: {{ mechanic.total_jobs|floatformat:0 }}%">
+                              {{ mechanic.total_jobs }}
+                            </div>
+                          </div>
+                        </td>
+                      </tr>
+                      {% empty %}
+                      <tr><td colspan="3">No data available</td></tr>
+                      {% endfor %}
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Top Service Types -->
+        <div class="row g-4">
+          <div class="col-md-12">
+            <div class="card border-0 bg-light">
+              <div class="card-body">
+                <h5 class="card-title">🏆 Most Popular Service Types</h5>
+                <div class="row">
+                  {% for service_type in insights.top_service_types %}
+                  <div class="col-md-4">
+                    <div class="card border-0 bg-white">
+                      <div class="card-body text-center">
+                        <h6>{{ service_type.display_name }}</h6>
+                        <div class="display-6 text-primary">{{ service_type.count }}</div>
+                        <small class="text-muted">services</small>
+                      </div>
+                    </div>
+                  </div>
+                  {% empty %}
+                  <div class="col-12 text-center text-muted">No service data available</div>
+                  {% endfor %}
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Chart.js -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+<script>
+// Monthly Services Chart
+const monthlyData = {{ monthly_data_json|safe }};
+const monthlyLabels = Object.keys(monthlyData).sort();
+const monthlyValues = monthlyLabels.map(month => monthlyData[month]);
+
+const monthlyCtx = document.getElementById('monthlyChart').getContext('2d');
+new Chart(monthlyCtx, {
+    type: 'bar',
+    data: {
+        labels: monthlyLabels,
+        datasets: [{
+            label: 'Services',
+            data: monthlyValues,
+            backgroundColor: 'rgba(54, 162, 235, 0.6)',
+            borderColor: 'rgba(54, 162, 235, 1)',
+            borderWidth: 1
+        }]
+    },
+    options: {
+        responsive: true,
+        scales: {
+            y: {
+                beginAtZero: true
+            }
+        }
+    }
+});
+
+// Status Distribution Pie Chart
+const statusData = {{ status_distribution_json|safe }};
+const statusLabels = Object.keys(statusData).map(status => 
+    status.charAt(0).toUpperCase() + status.slice(1).replace(/_/g, ' ')
+);
+const statusValues = Object.values(statusData);
+const statusColors = ['#28a745', '#ffc107', '#17a2b8'];
+
+const statusCtx = document.getElementById('statusChart').getContext('2d');
+new Chart(statusCtx, {
+    type: 'pie',
+    data: {
+        labels: statusLabels,
+        datasets: [{
+            data: statusValues,
+            backgroundColor: statusColors,
+            borderWidth: 2
+        }]
+    },
+    options: {
+        responsive: true,
+        plugins: {
+            legend: {
+                position: 'bottom'
+            }
+        }
+    }
+});
+
+// Service Types Chart
+const serviceTypeData = {{ service_type_distribution_json|safe }};
+const serviceTypeLabels = Object.keys(serviceTypeData).map(type => 
+    type.charAt(0).toUpperCase() + type.slice(1).replace(/_/g, ' ')
+);
+const serviceTypeValues = Object.values(serviceTypeData);
+
+const serviceTypeCtx = document.getElementById('serviceTypeChart').getContext('2d');
+new Chart(serviceTypeCtx, {
+    type: 'doughnut',
+    data: {
+        labels: serviceTypeLabels,
+        datasets: [{
+            data: serviceTypeValues,
+            backgroundColor: [
+                '#FF6384',
+                '#36A2EB',
+                '#FFCE56',
+                '#4BC0C0'
+            ],
+            borderWidth: 2
+        }]
+    },
+    options: {
+        responsive: true,
+        plugins: {
+            legend: {
+                position: 'bottom'
+            }
+        }
+    }
+});
+</script>
+{% endblock %}

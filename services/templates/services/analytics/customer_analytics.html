@@ -1,0 +1,166 @@
+{% extends "services/base.html" %}
+{% block content %}
+<div class="row">
+  <div class="col-12">
+    <div class="card shadow-sm">
+      <div class="card-body">
+        <h4 class="mb-4">📊 Your Service Analytics</h4>
+
+        <!-- Personal Metrics Cards -->
+        <div class="row g-3 mb-4">
+          <div class="col-md-3">
+            <div class="card border-0 bg-primary text-white">
+              <div class="card-body">
+                <h6>Total Services</h6>
+                <div class="display-6 fw-semibold">{{ insights.total_services }}</div>
+              </div>
+            </div>
+          </div>
+          <div class="col-md-3">
+            <div class="card border-0 bg-success text-white">
+              <div class="card-body">
+                <h6>Completed</h6>
+                <div class="display-6 fw-semibold">{{ insights.completed }}</div>
+              </div>
+            </div>
+          </div>
+          <div class="col-md-3">
+            <div class="card border-0 bg-warning text-dark">
+              <div class="card-body">
+                <h6>Pending</h6>
+                <div class="display-6 fw-semibold">{{ insights.pending }}</div>
+              </div>
+            </div>
+          </div>
+          <div class="col-md-3">
+            <div class="card border-0 bg-info text-white">
+              <div class="card-body">
+                <h6>This Year</h6>
+                <div class="display-6 fw-semibold">{{ insights.this_year_services }}</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Service History Chart -->
+        <div class="row g-4 mb-4">
+          <div class="col-md-12">
+            <div class="card border-0 bg-light">
+              <div class="card-body">
+                <h5 class="card-title">📈 Your Service History</h5>
+                <canvas id="serviceHistoryChart" width="400" height="200"></canvas>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Service Status Overview -->
+        <div class="row g-4">
+          <div class="col-md-6">
+            <div class="card border-0 bg-light">
+              <div class="card-body">
+                <h5 class="card-title">📊 Service Status Overview</h5>
+                <div class="row text-center">
+                  <div class="col-4">
+                    <div class="border rounded p-3">
+                      <div class="h3 text-success">{{ insights.completed }}</div>
+                      <small class="text-muted">Completed</small>
+                    </div>
+                  </div>
+                  <div class="col-4">
+                    <div class="border rounded p-3">
+                      <div class="h3 text-warning">{{ insights.pending }}</div>
+                      <small class="text-muted">Pending</small>
+                    </div>
+                  </div>
+                  <div class="col-4">
+                    <div class="border rounded p-3">
+                      <div class="h3 text-info">{{ insights.in_progress }}</div>
+                      <small class="text-muted">In Progress</small>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="col-md-6">
+            <div class="card border-0 bg-light">
+              <div class="card-body">
+                <h5 class="card-title">🎯 Quick Actions</h5>
+                <div class="d-grid gap-2">
+                  <a href="{% url 'services_book' %}" class="btn btn-primary">
+                    <i class="fas fa-plus"></i> Book New Service
+                  </a>
+                  <a href="{% url 'dashboard_customer' %}" class="btn btn-outline-secondary">
+                    <i class="fas fa-tachometer-alt"></i> View Dashboard
+                  </a>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Chart.js -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+<script>
+// Service History Chart
+const serviceHistoryData = {{ service_history_json|safe }};
+const years = Object.keys(serviceHistoryData).sort();
+const completedData = years.map(year => serviceHistoryData[year].completed || 0);
+const pendingData = years.map(year => serviceHistoryData[year].pending || 0);
+const inProgressData = years.map(year => serviceHistoryData[year].in_progress || 0);
+
+const serviceHistoryCtx = document.getElementById('serviceHistoryChart').getContext('2d');
+new Chart(serviceHistoryCtx, {
+    type: 'line',
+    data: {
+        labels: years,
+        datasets: [
+            {
+                label: 'Completed',
+                data: completedData,
+                borderColor: 'rgb(40, 167, 69)',
+                backgroundColor: 'rgba(40, 167, 69, 0.1)',
+                tension: 0.1
+            },
+            {
+                label: 'Pending',
+                data: pendingData,
+                borderColor: 'rgb(255, 193, 7)',
+                backgroundColor: 'rgba(255, 193, 7, 0.1)',
+                tension: 0.1
+            },
+            {
+                label: 'In Progress',
+                data: inProgressData,
+                borderColor: 'rgb(23, 162, 184)',
+                backgroundColor: 'rgba(23, 162, 184, 0.1)',
+                tension: 0.1
+            }
+        ]
+    },
+    options: {
+        responsive: true,
+        scales: {
+            y: {
+                beginAtZero: true,
+                ticks: {
+                    stepSize: 1
+                }
+            }
+        },
+        plugins: {
+            legend: {
+                position: 'top'
+            }
+        }
+    }
+});
+</script>
+{% endblock %}
