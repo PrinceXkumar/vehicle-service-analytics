@@ -1,63 +1,36 @@
-# Python
-__pycache__/
-*.py[cod]
-*.pyo
-*.pyd
-*.log
-
-# Caches
-.cache/
-.pytest_cache/
-.mypy_cache/
-.ruff_cache/
-.pytype/
-
-# Env
-venv/
-.env
-.venv/
-.python-version
-pip-wheel-metadata/
-__pypackages__/
-
 # Django
+*.log
+*.pot
+*.pyc
+__pycache__/
+local_settings.py
 db.sqlite3
-*.sqlite3
+db.sqlite3-journal
 media/
-staticfiles/
+
+# Virtual Environment
+venv/
+env/
+ENV/
 
 # IDE
 .vscode/
 .idea/
-*.code-workspace
+*.swp
+*.swo
 
 # OS
-Thumbs.db
 .DS_Store
-# Python
-__pycache__/
+Thumbs.db
+
+# Documentation (local only)
+docs/
+
+# Other
 *.pyc
 *.pyo
 *.pyd
-*.sqlite3
-*.log
-
-# Virtual environment
-venv/
-
-# Django specific
-db.sqlite3
-*.pot
-*.mo
-*.pyc
-*.pyo
-__pycache__/
-media/
-staticfiles/
-
-# Environment variables
-.env
-
-# Mac / Windows
-.DS_Store
-Thumbs.db
+.Python
+env/
+pip-log.txt
+pip-delete-this-directory.txt
