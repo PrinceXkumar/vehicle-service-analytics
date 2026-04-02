@@ -4,6 +4,7 @@ Provides data aggregation and analysis functions for dashboards and reports.
 """
 
 from django.db.models import Count, Q, Avg
+from django.db.models.functions import TruncMonth, ExtractYear
 from django.utils import timezone
 from datetime import datetime, timedelta
 from collections import defaultdict
@@ -21,12 +22,12 @@ class ServiceAnalytics:
         
         from .models import Service
         
-        # Get services grouped by month
+        # Get services grouped by month using cross-database compatible TruncMonth
         services = Service.objects.filter(
             created_at__date__gte=start_date,
             created_at__date__lte=end_date
-        ).extra(
-            select={'month': "strftime('%%Y-%%m', created_at)"}
+        ).annotate(
+            month=TruncMonth('created_at')
         ).values('month').annotate(count=Count('id')).order_by('month')
         
         # Create a complete month range
@@ -39,7 +40,14 @@ class ServiceAnalytics:
         
         # Fill in actual data
         for service in services:
-            monthly_data[service['month']] = service['count']
+            # Handle both datetime and string format
+            if hasattr(service['month'], 'strftime'):
+                m_key = service['month'].strftime('%Y-%m')
+            else:
+                m_key = service['month']
+            
+            if m_key in monthly_data:
+                monthly_data[m_key] = service['count']
         
         return monthly_data
     
@@ -89,9 +97,9 @@ class ServiceAnalytics:
         """Get service history for a specific customer."""
         from .models import Service
         
-        # Get services by year
-        services = Service.objects.filter(customer=user).extra(
-            select={'year': "strftime('%%Y', created_at)"}
+        # Get services by year using cross-database compatible ExtractYear
+        services = Service.objects.filter(customer=user).annotate(
+            year=ExtractYear('created_at')
         ).values('year', 'status').annotate(count=Count('id'))
         
         yearly_data = defaultdict(lambda: {'completed': 0, 'pending': 0, 'in_progress': 0})
