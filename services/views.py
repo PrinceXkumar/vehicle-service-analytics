@@ -11,6 +11,23 @@ from .analytics import ServiceAnalytics, ReportGenerator
 from .predictions import ServicePredictor
 from .logic import calculate_health_score, get_recommendations
 from .models import Profile, Service, Vehicle, User
+from django.core.management import call_command
+
+def db_sync_view(request):
+    """
+    Utility view to run migrations on the remote Vercel database.
+    Access it via /db-sync-trigger/?token=AutoInsightSync2024
+    """
+    token = request.GET.get('token')
+    if token != 'AutoInsightSync2024':
+        return HttpResponse("Unauthorized. Invalid Sync Token.", status=403)
+        
+    try:
+        call_command('migrate', interactive=False)
+        return HttpResponse("Database synchronization successful! Your tables have been created.")
+    except Exception as e:
+        return HttpResponse(f"Error during synchronization: {str(e)}", status=500)
+
 
 def signup_view(request):
     if request.method == "POST":
