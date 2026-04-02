@@ -1,4 +1,5 @@
 {
+  "version": 2,
   "builds": [
     {
       "src": "vehicle_service_analytics/wsgi.py",
@@ -15,5 +16,7 @@
       "src": "/(.*)",
       "dest": "vehicle_service_analytics/wsgi.py"
     }
-  ]
+  ],
+  "installCommand": "pip install -r requirements.txt",
+  "buildCommand": "bash build_files.sh"
 }
