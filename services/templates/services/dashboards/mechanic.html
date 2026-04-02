@@ -1,41 +1,97 @@
 {% extends "services/base.html" %}
 {% block content %}
-<div class="row">
-  <div class="col-12">
-    <div class="card shadow-sm">
-      <div class="card-body">
-        <div class="d-flex justify-content-between align-items-center mb-3">
-          <div>
-            <h4 class="mb-1">Hello, {{ request.user.first_name|default:request.user.username }}</h4>
-            <p class="text-muted">Mechanic Dashboard</p>
-          </div>
-          <a href="{% url 'mechanic_analytics' %}" class="btn btn-outline-primary">
-            <i class="fas fa-chart-pie"></i> My Performance
-          </a>
-        </div>
-        <div class="row g-3 mt-2">
-          <div class="col-md-12">
-            <div class="card border-0 bg-light">
-              <div class="card-body">
-                <h5>Assigned Jobs</h5>
-                <ul class="mb-0">
-                  {% for job in assigned_jobs %}
-                    <li>
-                      {{ job.get_service_type_display }} -
-                      <span class="badge {% if job.status == 'completed' %}bg-success{% elif job.status == 'in_progress' %}bg-info text-dark{% else %}bg-warning text-dark{% endif %}">{{ job.get_status_display }}</span>
-                      <a class="btn btn-sm btn-outline-secondary ms-2" href="{% url 'services_update_status' job.id %}">Update</a>
-                    </li>
-                  {% empty %}
-                    <li>No assigned jobs.</li>
-                  {% endfor %}
-                </ul>
-              </div>
-            </div>
-          </div>
-        </div>
+
+<!-- Page Header -->
+<div class="page-header">
+  <div>
+    <h4><i class="fa-solid fa-wrench text-info me-2"></i>Hello, {{ request.user.first_name|default:request.user.username }}</h4>
+    <span class="badge-role bg-gradient-cyan text-white mt-2">Mechanic Dashboard</span>
+  </div>
+  <a href="{% url 'mechanic_analytics' %}" class="btn btn-premium">
+    <i class="fa-solid fa-chart-pie me-1"></i> My Performance
+  </a>
+</div>
+
+<!-- Quick Stats -->
+<div class="row g-4 mb-4">
+  <div class="col-md-4">
+    <div class="metric-card bg-gradient-blue shadow-sm">
+      <i class="fa-solid fa-briefcase metric-icon"></i>
+      <div class="metric-label">Total Assigned</div>
+      <div class="metric-value">{{ assigned_jobs|length }}</div>
+    </div>
+  </div>
+  <div class="col-md-4">
+    <div class="metric-card bg-gradient-amber shadow-sm">
+      <i class="fa-solid fa-spinner metric-icon"></i>
+      <div class="metric-label">In Progress</div>
+      <div class="metric-value">
+        {% with in_prog=0 %}
+          {% for job in assigned_jobs %}{% if job.status == 'in_progress' %}{{ forloop.counter }}{% endif %}{% endfor %}
+        {% endwith %}
+      </div>
+    </div>
+  </div>
+  <div class="col-md-4">
+    <div class="metric-card bg-gradient-green shadow-sm">
+      <i class="fa-solid fa-circle-check metric-icon"></i>
+      <div class="metric-label">Completed</div>
+      <div class="metric-value">
+        {% for job in assigned_jobs %}{% if job.status == 'completed' %}{{ forloop.counter }}{% endif %}{% endfor %}
       </div>
     </div>
   </div>
 </div>
-{% endblock %}
 
+<!-- Assigned Jobs -->
+<div class="dash-card">
+  <div class="d-flex justify-content-between align-items-center mb-3">
+    <h5 class="mb-0"><i class="fa-solid fa-clipboard-list text-primary me-2"></i>Assigned Jobs</h5>
+    <span class="badge bg-primary">{{ assigned_jobs|length }} jobs</span>
+  </div>
+  {% if assigned_jobs %}
+  <div class="table-responsive">
+    <table class="table table-premium mb-0">
+      <thead>
+        <tr>
+          <th>Service Type</th>
+          <th>Customer</th>
+          <th>Status</th>
+          <th>Action</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for job in assigned_jobs %}
+        <tr>
+          <td class="fw-medium">
+            {{ job.get_service_type_display }}
+            {% if job.service_type == 'custom' and job.custom_description %}
+              <div class="small text-muted mt-1" style="max-width: 250px;">
+                <i class="fa-solid fa-note-sticky me-1"></i>{{ job.custom_description|truncatechars:100 }}
+              </div>
+            {% endif %}
+          </td>
+          <td>{{ job.customer.first_name|default:job.customer.username }}</td>
+          <td>
+            <span class="badge-status {% if job.status == 'completed' %}badge-completed{% elif job.status == 'in_progress' %}badge-in-progress{% else %}badge-pending{% endif %}">
+              {{ job.get_status_display }}
+            </span>
+          </td>
+          <td>
+            <a class="btn btn-premium btn-sm" href="{% url 'services_update_status' job.id %}">
+              <i class="fa-solid fa-pen-to-square me-1"></i>Update
+            </a>
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+  {% else %}
+  <div class="text-center py-4">
+    <i class="fa-solid fa-inbox fa-2x text-muted mb-2"></i>
+    <p class="text-muted mb-0">No jobs assigned yet. Check back later!</p>
+  </div>
+  {% endif %}
+</div>
+{% endblock %}

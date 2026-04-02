@@ -1,90 +1,176 @@
 {% extends "services/base.html" %}
+{% load static %}
 {% block content %}
-<div class="row justify-content-center">
-  <div class="col-lg-7 col-md-8">
-    <div class="card shadow-sm">
-      <div class="card-body p-4">
-        <h3 class="text-center mb-4">Create your account</h3>
+<style>
+  .auth-shell {
+    min-height: calc(100vh - 250px);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .auth-card {
+    border: 0;
+    border-radius: 1.5rem;
+    overflow: hidden;
+    background: #fff;
+  }
+  .auth-left {
+    background: linear-gradient(135deg, rgba(15, 23, 42, 0.85) 0%, rgba(124, 58, 237, 0.6) 100%), 
+                url("{% static 'services/images/home_car_bg.jpg' %}");
+    background-size: cover;
+    background-position: center bottom;
+    color: #fff;
+    padding: 3rem 2rem;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    position: relative;
+  }
+  .auth-left .icon-circle {
+    width: 64px;
+    height: 64px;
+    border-radius: 16px;
+    background-color: rgba(255, 255, 255, 0.15);
+    backdrop-filter: blur(8px);
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 2rem;
+    font-size: 1.5rem;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+  }
+  .auth-right {
+    padding: 3rem;
+  }
+  .auth-right .form-label {
+    font-weight: 600;
+    color: var(--text-main);
+    font-size: 0.9rem;
+    margin-bottom: 0.5rem;
+  }
+  .auth-link {
+    text-decoration: none;
+    font-weight: 600;
+    color: var(--accent-violet);
+  }
+  .auth-link:hover {
+    text-decoration: underline;
+  }
+  .form-control, .form-select {
+    padding: 0.75rem 1rem;
+    border-color: #e2e8f0;
+    border-radius: 10px;
+  }
+  .form-control:focus, .form-select:focus {
+    border-color: var(--accent-violet);
+    box-shadow: 0 0 0 3px rgba(124, 58, 237, 0.1);
+  }
+</style>
 
-        {% if form.non_field_errors %}
-          <div class="alert alert-danger" role="alert">
-            {% for error in form.non_field_errors %}
-              <div>{{ error }}</div>
-            {% endfor %}
+<div class="auth-shell">
+  <div class="col-xl-10 col-lg-11">
+    <div class="card auth-card shadow-xl">
+      <div class="row g-0">
+        <div class="col-md-4 d-none d-md-block">
+          <div class="auth-left text-center">
+            <div class="d-flex justify-content-center">
+              <span class="icon-circle shadow-sm"><i class="fa-solid fa-user-plus"></i></span>
+            </div>
+            <h3 class="fw-bold mb-3">Join the platform</h3>
+            <p class="text-white-50 mb-0 px-3 small">
+              Create your account to book services, manage work, and track progress with ease.
+            </p>
           </div>
-        {% endif %}
+        </div>
 
-        <form method="post" novalidate>
-          {% csrf_token %}
+        <div class="col-md-8">
+          <div class="auth-right">
+            <h3 class="fw-bold mb-1">Create your account</h3>
+            <p class="text-muted mb-4 small">Fill in the details to get started</p>
 
-          <div class="row g-3">
-            <div class="col-md-6">
-              <label class="form-label" for="id_username">Username</label>
-              {{ form.username }}
-              {% if form.username.errors %}
-                <div class="text-danger small mt-1">{{ form.username.errors|striptags }}</div>
-              {% endif %}
-            </div>
-            <div class="col-md-6">
-              <label class="form-label" for="id_email">Email</label>
-              {{ form.email }}
-              {% if form.email.errors %}
-                <div class="text-danger small mt-1">{{ form.email.errors|striptags }}</div>
-              {% endif %}
-            </div>
+            {% if form.non_field_errors %}
+              <div class="alert alert-danger border-0 rounded-3 small shadow-sm" role="alert">
+                {% for error in form.non_field_errors %}
+                  <div><i class="fa-solid fa-circle-exclamation me-2"></i>{{ error }}</div>
+                {% endfor %}
+              </div>
+            {% endif %}
 
-            <div class="col-md-6">
-              <label class="form-label" for="id_password1">Password</label>
-              {{ form.password1 }}
-              {% if form.password1.errors %}
-                <div class="text-danger small mt-1">{{ form.password1.errors|striptags }}</div>
-              {% endif %}
-            </div>
-            <div class="col-md-6">
-              <label class="form-label" for="id_password2">Confirm Password</label>
-              {{ form.password2 }}
-              {% if form.password2.errors %}
-                <div class="text-danger small mt-1">{{ form.password2.errors|striptags }}</div>
-              {% endif %}
-            </div>
+            <form method="post" novalidate>
+              {% csrf_token %}
 
-            <div class="col-md-6">
-              <label class="form-label" for="id_full_name">Full Name</label>
-              {{ form.full_name }}
-              {% if form.full_name.errors %}
-                <div class="text-danger small mt-1">{{ form.full_name.errors|striptags }}</div>
-              {% endif %}
-            </div>
-            <div class="col-md-6">
-              <label class="form-label" for="id_phone">Phone Number</label>
-              {{ form.phone }}
-              {% if form.phone.errors %}
-                <div class="text-danger small mt-1">{{ form.phone.errors|striptags }}</div>
-              {% endif %}
-            </div>
+              <div class="row g-3">
+                <div class="col-md-6">
+                  <label class="form-label" for="id_username">Username</label>
+                  {{ form.username }}
+                  {% if form.username.errors %}
+                    <div class="text-danger small mt-1">{{ form.username.errors|striptags }}</div>
+                  {% endif %}
+                </div>
+                <div class="col-md-6">
+                  <label class="form-label" for="id_email">Email</label>
+                  {{ form.email }}
+                  {% if form.email.errors %}
+                    <div class="text-danger small mt-1">{{ form.email.errors|striptags }}</div>
+                  {% endif %}
+                </div>
 
-            <div class="col-md-6">
-              <label class="form-label" for="id_role">Role</label>
-              {{ form.role }}
-              {% if form.role.errors %}
-                <div class="text-danger small mt-1">{{ form.role.errors|striptags }}</div>
-              {% endif %}
-            </div>
-            <div class="col-md-6">
-              <label class="form-label" for="id_address">Address (optional)</label>
-              {{ form.address }}
-              {% if form.address.errors %}
-                <div class="text-danger small mt-1">{{ form.address.errors|striptags }}</div>
-              {% endif %}
-            </div>
+                <div class="col-md-6">
+                  <label class="form-label" for="id_password1">Password</label>
+                  {{ form.password1 }}
+                  {% if form.password1.errors %}
+                    <div class="text-danger small mt-1">{{ form.password1.errors|striptags }}</div>
+                  {% endif %}
+                </div>
+                <div class="col-md-6">
+                  <label class="form-label" for="id_password2">Confirm Password</label>
+                  {{ form.password2 }}
+                  {% if form.password2.errors %}
+                    <div class="text-danger small mt-1">{{ form.password2.errors|striptags }}</div>
+                  {% endif %}
+                </div>
+
+                <div class="col-md-6">
+                  <label class="form-label" for="id_full_name">Full Name</label>
+                  {{ form.full_name }}
+                  {% if form.full_name.errors %}
+                    <div class="text-danger small mt-1">{{ form.full_name.errors|striptags }}</div>
+                  {% endif %}
+                </div>
+                <div class="col-md-6">
+                  <label class="form-label" for="id_phone">Phone Number</label>
+                  {{ form.phone }}
+                  {% if form.phone.errors %}
+                    <div class="text-danger small mt-1">{{ form.phone.errors|striptags }}</div>
+                  {% endif %}
+                </div>
+
+                <div class="col-md-6">
+                  <label class="form-label" for="id_role">Role</label>
+                  {{ form.role }}
+                  {% if form.role.errors %}
+                    <div class="text-danger small mt-1">{{ form.role.errors|striptags }}</div>
+                  {% endif %}
+                </div>
+                <div class="col-md-6">
+                  <label class="form-label" for="id_address">Address (optional)</label>
+                  {{ form.address }}
+                  {% if form.address.errors %}
+                    <div class="text-danger small mt-1">{{ form.address.errors|striptags }}</div>
+                  {% endif %}
+                </div>
+              </div>
+
+              <button type="submit" class="btn btn-premium w-100 py-3 mt-4 shadow-sm">Initialize Account</button>
+            </form>
+
+            <p class="text-center mt-4 mb-0 text-muted small">
+              Already have an account?
+              <a class="auth-link" href="{% url 'login' %}">Login</a>
+            </p>
           </div>
-
-          <button type="submit" class="btn btn-primary w-100 mt-4">Create account</button>
-        </form>
-
-        <p class="text-center mt-3 mb-0">
-          Already have an account? <a href="{% url 'login' %}">Login</a>
-        </p>
+        </div>
       </div>
     </div>
   </div>

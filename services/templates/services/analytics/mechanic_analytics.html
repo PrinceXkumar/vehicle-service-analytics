@@ -1,147 +1,128 @@
 {% extends "services/base.html" %}
 {% block content %}
-<div class="row">
-  <div class="col-12">
-    <div class="card shadow-sm">
-      <div class="card-body">
-        <h4 class="mb-4">📊 Your Performance Analytics</h4>
 
-        <!-- Performance Metrics Cards -->
-        <div class="row g-3 mb-4">
-          <div class="col-md-3">
-            <div class="card border-0 bg-primary text-white">
-              <div class="card-body">
-                <h6>Total Assigned</h6>
-                <div class="display-6 fw-semibold">{{ insights.total_assigned }}</div>
-              </div>
-            </div>
-          </div>
-          <div class="col-md-3">
-            <div class="card border-0 bg-success text-white">
-              <div class="card-body">
-                <h6>Completed</h6>
-                <div class="display-6 fw-semibold">{{ insights.completed }}</div>
-              </div>
-            </div>
-          </div>
-          <div class="col-md-3">
-            <div class="card border-0 bg-warning text-dark">
-              <div class="card-body">
-                <h6>Pending</h6>
-                <div class="display-6 fw-semibold">{{ insights.pending }}</div>
-              </div>
-            </div>
-          </div>
-          <div class="col-md-3">
-            <div class="card border-0 bg-info text-white">
-              <div class="card-body">
-                <h6>This Month</h6>
-                <div class="display-6 fw-semibold">{{ insights.this_month_completed }}</div>
-              </div>
-            </div>
+<!-- Page Header -->
+<div class="page-header">
+  <div>
+    <h4><i class="fa-solid fa-chart-pie text-info me-2"></i>Performance Analytics</h4>
+    <span class="badge-role bg-gradient-cyan text-white mt-2">Mechanic View</span>
+  </div>
+  <a href="{% url 'dashboard_mechanic' %}" class="btn btn-outline-secondary">
+    <i class="fa-solid fa-arrow-left me-1"></i> Dashboard
+  </a>
+</div>
+
+<!-- Metrics -->
+<div class="row g-4 mb-4">
+  <div class="col-md-3">
+    <div class="metric-card bg-gradient-blue shadow-sm">
+      <i class="fa-solid fa-briefcase metric-icon"></i>
+      <div class="metric-label">Total Assigned</div>
+      <div class="metric-value">{{ insights.total_assigned }}</div>
+    </div>
+  </div>
+  <div class="col-md-3">
+    <div class="metric-card bg-gradient-green shadow-sm">
+      <i class="fa-solid fa-circle-check metric-icon"></i>
+      <div class="metric-label">Completed</div>
+      <div class="metric-value">{{ insights.completed }}</div>
+    </div>
+  </div>
+  <div class="col-md-3">
+    <div class="metric-card bg-gradient-amber shadow-sm">
+      <i class="fa-solid fa-hourglass-half metric-icon"></i>
+      <div class="metric-label">Pending</div>
+      <div class="metric-value">{{ insights.pending }}</div>
+    </div>
+  </div>
+  <div class="col-md-3">
+    <div class="metric-card bg-gradient-violet shadow-sm">
+      <i class="fa-solid fa-calendar-check metric-icon"></i>
+      <div class="metric-label">This Month</div>
+      <div class="metric-value">{{ insights.this_month_completed }}</div>
+    </div>
+  </div>
+</div>
+
+<!-- Charts & Performance -->
+<div class="row g-4 mb-4">
+  <div class="col-lg-6">
+    <div class="dash-card">
+      <h5><i class="fa-solid fa-chart-pie text-primary me-2"></i>Job Status Distribution</h5>
+      <div class="chart-container">
+        <canvas id="jobStatusChart"></canvas>
+      </div>
+    </div>
+  </div>
+  <div class="col-lg-6">
+    <div class="dash-card">
+      <h5><i class="fa-solid fa-bullseye text-success me-2"></i>Completion Rate</h5>
+      <div class="text-center my-4">
+        <div class="position-relative d-inline-block">
+          <canvas id="completionGauge" width="200" height="200"></canvas>
+          <div class="position-absolute top-50 start-50 translate-middle">
+            <div class="fw-bold fs-2">{{ insights.completion_rate|floatformat:0 }}%</div>
+            <div class="text-muted small">completion</div>
           </div>
         </div>
+      </div>
+      <div class="d-flex justify-content-around mt-3">
+        <div class="text-center">
+          <div class="fw-bold fs-4 text-success">{{ insights.completed }}</div>
+          <div class="text-muted small">Completed</div>
+        </div>
+        <div class="text-center">
+          <div class="fw-bold fs-4 text-warning">{{ insights.pending }}</div>
+          <div class="text-muted small">Pending</div>
+        </div>
+        <div class="text-center">
+          <div class="fw-bold fs-4 text-primary">{{ insights.in_progress }}</div>
+          <div class="text-muted small">In Progress</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
 
-        <!-- Performance Overview -->
-        <div class="row g-4 mb-4">
-          <div class="col-md-6">
-            <div class="card border-0 bg-light">
-              <div class="card-body">
-                <h5 class="card-title">📊 Job Status Distribution</h5>
-                <canvas id="jobStatusChart" width="400" height="200"></canvas>
-              </div>
-            </div>
-          </div>
-
-          <div class="col-md-6">
-            <div class="card border-0 bg-light">
-              <div class="card-body">
-                <h5 class="card-title">🎯 Performance Metrics</h5>
-                <div class="mb-3">
-                  <div class="d-flex justify-content-between">
-                    <span>Completion Rate</span>
-                    <span class="fw-bold">{{ insights.completion_rate|floatformat:1 }}%</span>
-                  </div>
-                  <div class="progress mt-1" style="height: 25px;">
-                    <div class="progress-bar bg-success" role="progressbar" 
-                         style="width: {{ insights.completion_rate }}%">
-                      {{ insights.completion_rate|floatformat:1 }}%
-                    </div>
-                  </div>
-                </div>
-                
-                <div class="row text-center mt-4">
-                  <div class="col-4">
-                    <div class="border rounded p-2">
-                      <div class="h4 text-success">{{ insights.completed }}</div>
-                      <small class="text-muted">Completed</small>
-                    </div>
-                  </div>
-                  <div class="col-4">
-                    <div class="border rounded p-2">
-                      <div class="h4 text-warning">{{ insights.pending }}</div>
-                      <small class="text-muted">Pending</small>
-                    </div>
-                  </div>
-                  <div class="col-4">
-                    <div class="border rounded p-2">
-                      <div class="h4 text-info">{{ insights.in_progress }}</div>
-                      <small class="text-muted">In Progress</small>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
+<!-- Performance Insights -->
+<div class="row g-4">
+  <div class="col-lg-8">
+    <div class="dash-card">
+      <h5><i class="fa-solid fa-lightbulb text-warning me-2"></i>Performance Insights</h5>
+      <div class="row g-3 mt-2">
+        <div class="col-md-6">
+          <div class="rounded-3 p-3" style="background: #dbeafe;">
+            <div class="fw-semibold mb-1" style="color:#1e40af;"><i class="fa-solid fa-chart-line me-1"></i> This Month</div>
+            <p class="mb-0 small" style="color:#1e3a5f;">You've completed <strong>{{ insights.this_month_completed }}</strong> jobs this month.</p>
           </div>
         </div>
-
-        <!-- Performance Insights -->
-        <div class="row g-4">
-          <div class="col-md-8">
-            <div class="card border-0 bg-light">
-              <div class="card-body">
-                <h5 class="card-title">💡 Performance Insights</h5>
-                <div class="row">
-                  <div class="col-md-6">
-                    <div class="alert alert-info">
-                      <h6><i class="fas fa-chart-line"></i> This Month</h6>
-                      <p class="mb-0">You've completed <strong>{{ insights.this_month_completed }}</strong> jobs this month.</p>
-                    </div>
-                  </div>
-                  <div class="col-md-6">
-                    <div class="alert alert-success">
-                      <h6><i class="fas fa-trophy"></i> Overall Performance</h6>
-                      <p class="mb-0">You have a <strong>{{ insights.completion_rate|floatformat:1 }}%</strong> completion rate.</p>
-                    </div>
-                  </div>
-                </div>
-                
-                {% if insights.pending > 0 %}
-                <div class="alert alert-warning">
-                  <h6><i class="fas fa-clock"></i> Pending Jobs</h6>
-                  <p class="mb-0">You have <strong>{{ insights.pending }}</strong> pending jobs. Keep up the great work!</p>
-                </div>
-                {% endif %}
-              </div>
-            </div>
-          </div>
-
-          <div class="col-md-4">
-            <div class="card border-0 bg-light">
-              <div class="card-body">
-                <h5 class="card-title">🚀 Quick Actions</h5>
-                <div class="d-grid gap-2">
-                  <a href="{% url 'dashboard_mechanic' %}" class="btn btn-primary">
-                    <i class="fas fa-tachometer-alt"></i> View Dashboard
-                  </a>
-                  <a href="{% url 'dashboard_mechanic' %}" class="btn btn-outline-secondary">
-                    <i class="fas fa-tasks"></i> Manage Jobs
-                  </a>
-                </div>
-              </div>
-            </div>
+        <div class="col-md-6">
+          <div class="rounded-3 p-3" style="background: #d1fae5;">
+            <div class="fw-semibold mb-1" style="color:#065f46;"><i class="fa-solid fa-trophy me-1"></i> Overall</div>
+            <p class="mb-0 small" style="color:#064e3b;">Your completion rate is <strong>{{ insights.completion_rate|floatformat:1 }}%</strong>.</p>
           </div>
         </div>
+        {% if insights.pending > 0 %}
+        <div class="col-12">
+          <div class="rounded-3 p-3" style="background: #fef3c7;">
+            <div class="fw-semibold mb-1" style="color:#92400e;"><i class="fa-solid fa-clock me-1"></i> Pending Jobs</div>
+            <p class="mb-0 small" style="color:#78350f;">You have <strong>{{ insights.pending }}</strong> pending jobs. Keep up the great work!</p>
+          </div>
+        </div>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+  <div class="col-lg-4">
+    <div class="dash-card text-center">
+      <h5><i class="fa-solid fa-rocket text-primary me-2"></i>Quick Actions</h5>
+      <div class="d-grid gap-2 mt-3">
+        <a href="{% url 'dashboard_mechanic' %}" class="btn btn-premium">
+          <i class="fa-solid fa-gauge-high me-1"></i> View Dashboard
+        </a>
+        <a href="{% url 'dashboard_mechanic' %}" class="btn btn-outline-secondary">
+          <i class="fa-solid fa-list-check me-1"></i> Manage Jobs
+        </a>
       </div>
     </div>
   </div>
@@ -149,32 +130,39 @@
 
 <!-- Chart.js -->
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-
 <script>
-// Job Status Chart
-const jobStatusCtx = document.getElementById('jobStatusChart').getContext('2d');
-new Chart(jobStatusCtx, {
-    type: 'doughnut',
-    data: {
-        labels: ['Completed', 'Pending', 'In Progress'],
-        datasets: [{
-            data: [{{ insights.completed }}, {{ insights.pending }}, {{ insights.in_progress }}],
-            backgroundColor: [
-                '#28a745',
-                '#ffc107',
-                '#17a2b8'
-            ],
-            borderWidth: 2
-        }]
-    },
-    options: {
-        responsive: true,
-        plugins: {
-            legend: {
-                position: 'bottom'
-            }
-        }
-    }
+// Job Status Doughnut
+new Chart(document.getElementById('jobStatusChart'), {
+  type: 'doughnut',
+  data: {
+    labels: ['Completed', 'Pending', 'In Progress'],
+    datasets: [{
+      data: [{{ insights.completed }}, {{ insights.pending }}, {{ insights.in_progress }}],
+      backgroundColor: ['#10b981', '#f59e0b', '#3b82f6'],
+      borderWidth: 0
+    }]
+  },
+  options: { 
+    responsive: true, 
+    maintainAspectRatio: false,
+    cutout: '60%',
+    plugins: { legend: { position: 'bottom' } } 
+  }
+});
+
+// Completion Gauge
+new Chart(document.getElementById('completionGauge'), {
+  type: 'doughnut',
+  data: {
+    datasets: [{
+      data: [{{ insights.completion_rate|floatformat:0 }}, {{ insights.completion_rate|floatformat:0|add:"-100"|cut:"-" }}],
+      backgroundColor: ['#10b981', '#e2e8f0'],
+      borderWidth: 0
+    }]
+  },
+  options: { responsive: true, cutout: '78%',
+    plugins: { legend: { display: false }, tooltip: { enabled: false } },
+    rotation: -90, circumference: 180 }
 });
 </script>
 {% endblock %}

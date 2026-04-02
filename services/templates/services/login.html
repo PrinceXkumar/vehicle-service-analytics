@@ -1,18 +1,132 @@
 {% extends "services/base.html" %}
+{% load static %}
 {% block content %}
-<div class="row justify-content-center">
-  <div class="col-md-4">
-    <div class="card shadow-sm">
-      <div class="card-body">
-        <h3 class="text-center mb-4">Login</h3>
-        <form method="post">
-          {% csrf_token %}
-          {{ form.as_p }}
-          <button type="submit" class="btn btn-success w-100">Login</button>
-        </form>
-        <p class="text-center mt-3">
-          Don’t have an account? <a href="{% url 'signup' %}">Sign up</a>
-        </p>
+<style>
+  .auth-shell {
+    min-height: calc(100vh - 250px);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .auth-card {
+    border: 0;
+    border-radius: 1.5rem;
+    overflow: hidden;
+    background: #fff;
+  }
+  .auth-left {
+    background: linear-gradient(135deg, rgba(15, 23, 42, 0.85) 0%, rgba(124, 58, 237, 0.6) 100%), 
+                url("{% static 'services/images/home_car_bg.jpg' %}");
+    background-size: cover;
+    background-position: center bottom;
+    color: #fff;
+    padding: 3rem 2rem;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    position: relative;
+  }
+  .auth-left .icon-circle {
+    width: 64px;
+    height: 64px;
+    border-radius: 16px;
+    background-color: rgba(255, 255, 255, 0.15);
+    backdrop-filter: blur(8px);
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 2rem;
+    font-size: 1.5rem;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+  }
+  .auth-right {
+    padding: 3rem;
+  }
+  .auth-right .form-label {
+    font-weight: 600;
+    color: var(--text-main);
+    font-size: 0.9rem;
+    margin-bottom: 0.5rem;
+  }
+  .auth-link {
+    text-decoration: none;
+    font-weight: 600;
+    color: var(--accent-violet);
+  }
+  .auth-link:hover {
+    text-decoration: underline;
+  }
+  .form-control {
+    padding: 0.75rem 1rem;
+    border-color: #e2e8f0;
+    border-radius: 10px;
+  }
+  .form-control:focus {
+    border-color: var(--accent-violet);
+    box-shadow: 0 0 0 3px rgba(124, 58, 237, 0.1);
+  }
+</style>
+
+<div class="auth-shell">
+  <div class="col-xl-9 col-lg-10">
+    <div class="card auth-card shadow-xl">
+      <div class="row g-0">
+        <div class="col-md-5 d-none d-md-block">
+          <div class="auth-left text-center">
+            <div class="d-flex justify-content-center">
+              <span class="icon-circle shadow-sm"><i class="fa-solid fa-lock"></i></span>
+            </div>
+            <h3 class="fw-bold mb-3">Welcome back</h3>
+            <p class="text-white-50 mb-0 px-3 small">
+              Access your personalized dashboard to manage your vehicle services and track real-time updates.
+            </p>
+          </div>
+        </div>
+        <div class="col-md-7">
+          <div class="auth-right">
+            <h3 class="fw-bold mb-1">Sign In</h3>
+            <p class="text-muted mb-4 small">Enter your credentials to continue</p>
+
+            {% if form.non_field_errors %}
+              <div class="alert alert-danger border-0 rounded-3 small shadow-sm" role="alert">
+                {% for error in form.non_field_errors %}
+                  <div><i class="fa-solid fa-circle-exclamation me-2"></i>{{ error }}</div>
+                {% endfor %}
+              </div>
+            {% endif %}
+
+            <form method="post" novalidate>
+              {% csrf_token %}
+
+              <div class="mb-3">
+                <label class="form-label" for="id_username">Username</label>
+                {{ form.username }}
+                {% if form.username.errors %}
+                  <div class="text-danger small mt-1">{{ form.username.errors|striptags }}</div>
+                {% endif %}
+              </div>
+
+              <div class="mb-4">
+                <div class="d-flex justify-content-between">
+                    <label class="form-label" for="id_password">Password</label>
+                    <a href="#" class="small text-muted text-decoration-none">Forgot?</a>
+                </div>
+                {{ form.password }}
+                {% if form.password.errors %}
+                  <div class="text-danger small mt-1">{{ form.password.errors|striptags }}</div>
+                {% endif %}
+              </div>
+
+              <button type="submit" class="btn btn-premium w-100 py-2 shadow-sm">Login to Dashboard</button>
+            </form>
+
+            <p class="text-center mt-4 mb-0 text-muted small">
+              New to AutoInsight?
+              <a class="auth-link" href="{% url 'signup' %}">Create account</a>
+            </p>
+          </div>
+        </div>
       </div>
     </div>
   </div>

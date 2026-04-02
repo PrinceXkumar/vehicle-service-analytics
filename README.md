@@ -1,6 +1,6 @@
-# Vehicle Service Analytics
+# AutoInsight
 
-A Django web app for managing vehicle service workflows with role-based dashboards for Customers, Mechanics, and Managers.
+An intelligent Django web app for managing vehicle service workflows with AI-powered dashboards for Customers, Mechanics, and Managers.
 
 - Repo: https://github.com/PrinceXkumar/vehicle-service-analytics
 

@@ -1,6 +1,6 @@
 from django import forms
 from django.contrib.auth.models import User
-from django.contrib.auth.forms import UserCreationForm
+from django.contrib.auth.forms import UserCreationForm, AuthenticationForm
 from .models import Profile
 from .models import Service
 from django.contrib.auth import get_user_model
@@ -47,12 +47,36 @@ class SignUpForm(UserCreationForm):
                 field.widget.attrs.setdefault("placeholder", field_placeholders[field_name])
 
 
+class LoginForm(AuthenticationForm):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.fields["username"].widget.attrs.update(
+            {
+                "class": "form-control form-control-lg",
+                "placeholder": "Enter your username",
+                "autocomplete": "username",
+            }
+        )
+        self.fields["password"].widget.attrs.update(
+            {
+                "class": "form-control form-control-lg",
+                "placeholder": "Enter your password",
+                "autocomplete": "current-password",
+            }
+        )
+
+
 class BookServiceForm(forms.ModelForm):
     class Meta:
         model = Service
-        fields = ["service_type"]
+        fields = ["service_type", "custom_description"]
         widgets = {
-            "service_type": forms.Select(attrs={"class": "form-select"}),
+            "service_type": forms.Select(attrs={"class": "form-select", "id": "service_type_select"}),
+            "custom_description": forms.Textarea(attrs={
+                "class": "form-control",
+                "rows": "3",
+                "placeholder": "Tell us more about the issues you're facing (required for Custom Service)..."
+            }),
         }
 
 

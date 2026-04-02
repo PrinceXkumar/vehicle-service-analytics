@@ -1,166 +1,124 @@
 {% extends "services/base.html" %}
 {% block content %}
-<div class="row">
-  <div class="col-12">
-    <div class="card shadow-sm">
-      <div class="card-body">
-        <h4 class="mb-4">📊 Your Service Analytics</h4>
 
-        <!-- Personal Metrics Cards -->
-        <div class="row g-3 mb-4">
-          <div class="col-md-3">
-            <div class="card border-0 bg-primary text-white">
-              <div class="card-body">
-                <h6>Total Services</h6>
-                <div class="display-6 fw-semibold">{{ insights.total_services }}</div>
-              </div>
-            </div>
-          </div>
-          <div class="col-md-3">
-            <div class="card border-0 bg-success text-white">
-              <div class="card-body">
-                <h6>Completed</h6>
-                <div class="display-6 fw-semibold">{{ insights.completed }}</div>
-              </div>
-            </div>
-          </div>
-          <div class="col-md-3">
-            <div class="card border-0 bg-warning text-dark">
-              <div class="card-body">
-                <h6>Pending</h6>
-                <div class="display-6 fw-semibold">{{ insights.pending }}</div>
-              </div>
-            </div>
-          </div>
-          <div class="col-md-3">
-            <div class="card border-0 bg-info text-white">
-              <div class="card-body">
-                <h6>This Year</h6>
-                <div class="display-6 fw-semibold">{{ insights.this_year_services }}</div>
-              </div>
-            </div>
-          </div>
+<!-- Page Header -->
+<div class="page-header">
+  <div>
+    <h4><i class="fa-solid fa-chart-line text-success me-2"></i>Your Service Analytics</h4>
+    <span class="badge-role bg-gradient-violet text-white mt-2">Customer View</span>
+  </div>
+  <a href="{% url 'services_book' %}" class="btn btn-premium">
+    <i class="fa-solid fa-plus me-1"></i> Book Service
+  </a>
+</div>
+
+<!-- Metrics -->
+<div class="row g-4 mb-4">
+  <div class="col-md-3">
+    <div class="metric-card bg-gradient-blue shadow-sm">
+      <i class="fa-solid fa-car-side metric-icon"></i>
+      <div class="metric-label">Total Services</div>
+      <div class="metric-value">{{ insights.total_services }}</div>
+    </div>
+  </div>
+  <div class="col-md-3">
+    <div class="metric-card bg-gradient-green shadow-sm">
+      <i class="fa-solid fa-circle-check metric-icon"></i>
+      <div class="metric-label">Completed</div>
+      <div class="metric-value">{{ insights.completed }}</div>
+    </div>
+  </div>
+  <div class="col-md-3">
+    <div class="metric-card bg-gradient-amber shadow-sm">
+      <i class="fa-solid fa-hourglass-half metric-icon"></i>
+      <div class="metric-label">Pending</div>
+      <div class="metric-value">{{ insights.pending }}</div>
+    </div>
+  </div>
+  <div class="col-md-3">
+    <div class="metric-card bg-gradient-violet shadow-sm">
+      <i class="fa-solid fa-calendar metric-icon"></i>
+      <div class="metric-label">This Year</div>
+      <div class="metric-value">{{ insights.this_year_services }}</div>
+    </div>
+  </div>
+</div>
+
+<!-- Chart -->
+<div class="row g-4 mb-4">
+  <div class="col-lg-8">
+    <div class="dash-card">
+      <h5><i class="fa-solid fa-chart-area text-primary me-2"></i>Service History</h5>
+      <div class="chart-container">
+        <canvas id="serviceHistoryChart"></canvas>
+      </div>
+    </div>
+  </div>
+  <div class="col-lg-4">
+    <div class="dash-card">
+      <h5><i class="fa-solid fa-signal text-info me-2"></i>Status Overview</h5>
+      <div class="d-flex flex-column gap-3 mt-3">
+        <div class="d-flex justify-content-between align-items-center p-3 rounded-3" style="background:#d1fae5;">
+          <span class="fw-semibold" style="color:#065f46;"><i class="fa-solid fa-check-circle me-2"></i>Completed</span>
+          <span class="fw-bold fs-4" style="color:#065f46;">{{ insights.completed }}</span>
         </div>
-
-        <!-- Service History Chart -->
-        <div class="row g-4 mb-4">
-          <div class="col-md-12">
-            <div class="card border-0 bg-light">
-              <div class="card-body">
-                <h5 class="card-title">📈 Your Service History</h5>
-                <canvas id="serviceHistoryChart" width="400" height="200"></canvas>
-              </div>
-            </div>
-          </div>
+        <div class="d-flex justify-content-between align-items-center p-3 rounded-3" style="background:#fef3c7;">
+          <span class="fw-semibold" style="color:#92400e;"><i class="fa-solid fa-clock me-2"></i>Pending</span>
+          <span class="fw-bold fs-4" style="color:#92400e;">{{ insights.pending }}</span>
         </div>
-
-        <!-- Service Status Overview -->
-        <div class="row g-4">
-          <div class="col-md-6">
-            <div class="card border-0 bg-light">
-              <div class="card-body">
-                <h5 class="card-title">📊 Service Status Overview</h5>
-                <div class="row text-center">
-                  <div class="col-4">
-                    <div class="border rounded p-3">
-                      <div class="h3 text-success">{{ insights.completed }}</div>
-                      <small class="text-muted">Completed</small>
-                    </div>
-                  </div>
-                  <div class="col-4">
-                    <div class="border rounded p-3">
-                      <div class="h3 text-warning">{{ insights.pending }}</div>
-                      <small class="text-muted">Pending</small>
-                    </div>
-                  </div>
-                  <div class="col-4">
-                    <div class="border rounded p-3">
-                      <div class="h3 text-info">{{ insights.in_progress }}</div>
-                      <small class="text-muted">In Progress</small>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          <div class="col-md-6">
-            <div class="card border-0 bg-light">
-              <div class="card-body">
-                <h5 class="card-title">🎯 Quick Actions</h5>
-                <div class="d-grid gap-2">
-                  <a href="{% url 'services_book' %}" class="btn btn-primary">
-                    <i class="fas fa-plus"></i> Book New Service
-                  </a>
-                  <a href="{% url 'dashboard_customer' %}" class="btn btn-outline-secondary">
-                    <i class="fas fa-tachometer-alt"></i> View Dashboard
-                  </a>
-                </div>
-              </div>
-            </div>
-          </div>
+        <div class="d-flex justify-content-between align-items-center p-3 rounded-3" style="background:#dbeafe;">
+          <span class="fw-semibold" style="color:#1e40af;"><i class="fa-solid fa-spinner me-2"></i>In Progress</span>
+          <span class="fw-bold fs-4" style="color:#1e40af;">{{ insights.in_progress }}</span>
         </div>
       </div>
     </div>
   </div>
 </div>
 
+<!-- Quick Actions -->
+<div class="row g-4">
+  <div class="col-md-6">
+    <div class="dash-card text-center">
+      <i class="fa-solid fa-calendar-plus fa-2x text-primary mb-3"></i>
+      <h5>Book New Service</h5>
+      <p class="text-muted small">Schedule your next maintenance or checkup.</p>
+      <a href="{% url 'services_book' %}" class="btn btn-premium"><i class="fa-solid fa-plus me-1"></i> Book Now</a>
+    </div>
+  </div>
+  <div class="col-md-6">
+    <div class="dash-card text-center">
+      <i class="fa-solid fa-gauge-high fa-2x text-success mb-3"></i>
+      <h5>View Dashboard</h5>
+      <p class="text-muted small">Check your latest bookings and status updates.</p>
+      <a href="{% url 'dashboard_customer' %}" class="btn btn-outline-secondary"><i class="fa-solid fa-arrow-right me-1"></i> Dashboard</a>
+    </div>
+  </div>
+</div>
+
 <!-- Chart.js -->
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-
 <script>
-// Service History Chart
-const serviceHistoryData = {{ service_history_json|safe }};
-const years = Object.keys(serviceHistoryData).sort();
-const completedData = years.map(year => serviceHistoryData[year].completed || 0);
-const pendingData = years.map(year => serviceHistoryData[year].pending || 0);
-const inProgressData = years.map(year => serviceHistoryData[year].in_progress || 0);
-
-const serviceHistoryCtx = document.getElementById('serviceHistoryChart').getContext('2d');
-new Chart(serviceHistoryCtx, {
-    type: 'line',
-    data: {
-        labels: years,
-        datasets: [
-            {
-                label: 'Completed',
-                data: completedData,
-                borderColor: 'rgb(40, 167, 69)',
-                backgroundColor: 'rgba(40, 167, 69, 0.1)',
-                tension: 0.1
-            },
-            {
-                label: 'Pending',
-                data: pendingData,
-                borderColor: 'rgb(255, 193, 7)',
-                backgroundColor: 'rgba(255, 193, 7, 0.1)',
-                tension: 0.1
-            },
-            {
-                label: 'In Progress',
-                data: inProgressData,
-                borderColor: 'rgb(23, 162, 184)',
-                backgroundColor: 'rgba(23, 162, 184, 0.1)',
-                tension: 0.1
-            }
-        ]
-    },
-    options: {
-        responsive: true,
-        scales: {
-            y: {
-                beginAtZero: true,
-                ticks: {
-                    stepSize: 1
-                }
-            }
-        },
-        plugins: {
-            legend: {
-                position: 'top'
-            }
-        }
-    }
+const histData = {{ service_history_json|safe }};
+const years = Object.keys(histData).sort();
+new Chart(document.getElementById('serviceHistoryChart'), {
+  type: 'line',
+  data: {
+    labels: years,
+    datasets: [
+      { label: 'Completed', data: years.map(y => histData[y].completed || 0),
+        borderColor: '#10b981', backgroundColor: 'rgba(16,185,129,0.1)', fill: true, tension: 0.3 },
+      { label: 'Pending', data: years.map(y => histData[y].pending || 0),
+        borderColor: '#f59e0b', backgroundColor: 'rgba(245,158,11,0.1)', fill: true, tension: 0.3 },
+      { label: 'In Progress', data: years.map(y => histData[y].in_progress || 0),
+        borderColor: '#3b82f6', backgroundColor: 'rgba(59,130,246,0.1)', fill: true, tension: 0.3 }
+    ]
+  },
+  options: { 
+    responsive: true, 
+    maintainAspectRatio: false,
+    scales: { y: { beginAtZero: true, ticks: { stepSize: 1 } } },
+    plugins: { legend: { position: 'top' } } 
+  }
 });
 </script>
 {% endblock %}

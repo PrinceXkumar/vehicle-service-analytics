@@ -8,6 +8,9 @@ from .forms import SignUpForm, BookServiceForm, AssignMechanicForm, UpdateServic
 from .models import Profile, Service
 from .decorators import role_required
 from .analytics import ServiceAnalytics, ReportGenerator
+from .predictions import ServicePredictor
+from .logic import calculate_health_score, get_recommendations
+from .models import Profile, Service, Vehicle, User
 
 def signup_view(request):
     if request.method == "POST":
@@ -64,10 +67,29 @@ def dashboard_redirect(request):
 @role_required([Profile.ROLE_CUSTOMER])
 def dashboard_customer(request):
     recent_services = Service.objects.filter(customer=request.user).order_by('-created_at')[:3]
+
+    # ML Predictions
+    try:
+        prediction = ServicePredictor.get_customer_predictions(request.user)
+    except Exception:
+        prediction = None
+
+    # Health Score & Recommendations
+    vehicles = Vehicle.objects.filter(owner=request.user)
+    vehicle_data = []
+    for v in vehicles:
+        vehicle_data.append({
+            'vehicle': v,
+            'health_score': calculate_health_score(v),
+            'recommendations': get_recommendations(v)
+        })
+
     context = {
         "welcome_name": request.user.first_name or request.user.username,
         "recent_services_note": f"Your past {recent_services.count()} services are listed here.",
         "recent_services": recent_services,
+        "prediction": prediction,
+        "vehicle_data": vehicle_data,
     }
     return render(request, 'services/dashboards/customer.html', context)
 
@@ -146,8 +168,18 @@ def analytics_dashboard(request):
     """Manager analytics dashboard with charts and insights."""
     insights = ServiceAnalytics.get_manager_insights()
     
+    # Mechanic Rankings
+    mechanic_performance = ServiceAnalytics.get_mechanic_performance()
+    # Sort by completion_rate (desc) and total_assigned (desc)
+    mechanic_rankings = sorted(
+        mechanic_performance, 
+        key=lambda x: (x['completion_rate'], x['total_assigned']), 
+        reverse=True
+    )
+
     context = {
         'insights': insights,
+        'mechanic_rankings': mechanic_rankings,
         'monthly_data_json': json.dumps(insights['monthly_data']),
         'status_distribution_json': json.dumps(insights['status_distribution']),
         'service_type_distribution_json': json.dumps(insights['service_type_distribution']),

@@ -1,68 +1,93 @@
 {% extends "services/base.html" %}
 {% block content %}
-<div class="row">
-  <div class="col-12">
-    <div class="card shadow-sm">
-      <div class="card-body">
-        <div class="d-flex justify-content-between align-items-center mb-3">
-          <div>
-            <h4 class="mb-1">Welcome, {{ request.user.first_name|default:request.user.username }}</h4>
-            <p class="text-muted">Manager Dashboard</p>
-          </div>
-          <a href="{% url 'analytics_dashboard' %}" class="btn btn-primary">
-            <i class="fas fa-chart-bar"></i> Analytics Dashboard
-          </a>
-        </div>
-        <div class="row g-3 mt-2">
-          <div class="col-md-4">
-            <div class="card border-0 bg-light">
-              <div class="card-body">
-                <h6>Total Services</h6>
-                <div class="display-6 fw-semibold">{{ total_services }}</div>
-              </div>
-            </div>
-          </div>
-          <div class="col-md-4">
-            <div class="card border-0 bg-light">
-              <div class="card-body">
-                <h6>Pending</h6>
-                <div class="display-6 fw-semibold">{{ pending_jobs }}</div>
-              </div>
-            </div>
-          </div>
-          <div class="col-md-4">
-            <div class="card border-0 bg-light">
-              <div class="card-body">
-                <h6>Completed</h6>
-                <div class="display-6 fw-semibold">{{ completed_jobs }}</div>
-              </div>
-            </div>
-          </div>
-        </div>
 
-        <div class="card mt-4 border-0 bg-light">
-          <div class="card-body">
-            <h5 class="mb-3">Pending Services</h5>
-            <ul class="mb-0">
-              {% for s in pending_list %}
-                <li>
-                  {{ s.get_service_type_display }}
-                  {% if s.assigned_mechanic %}
-                    - Assigned to {{ s.assigned_mechanic.first_name|default:s.assigned_mechanic.username }}
-                  {% else %}
-                    - <em>Unassigned</em>
-                  {% endif %}
-                  <a class="btn btn-sm btn-outline-primary ms-2" href="{% url 'services_assign' s.id %}">Assign</a>
-                </li>
-              {% empty %}
-                <li>No pending services.</li>
-              {% endfor %}
-            </ul>
-          </div>
-        </div>
-      </div>
+<!-- Page Header -->
+<div class="page-header">
+  <div>
+    <h4><i class="fa-solid fa-shield-halved text-primary me-2"></i>Welcome, {{ request.user.first_name|default:request.user.username }}</h4>
+    <span class="badge-role bg-gradient-blue text-white mt-2">Manager Dashboard</span>
+  </div>
+  <a href="{% url 'analytics_dashboard' %}" class="btn btn-premium">
+    <i class="fa-solid fa-chart-bar me-1"></i> Analytics Dashboard
+  </a>
+</div>
+
+<!-- Metric Cards -->
+<div class="row g-4 mb-4">
+  <div class="col-md-4">
+    <div class="metric-card bg-gradient-blue shadow-sm">
+      <i class="fa-solid fa-car-side metric-icon"></i>
+      <div class="metric-label">Total Services</div>
+      <div class="metric-value">{{ total_services }}</div>
+    </div>
+  </div>
+  <div class="col-md-4">
+    <div class="metric-card bg-gradient-amber shadow-sm">
+      <i class="fa-solid fa-hourglass-half metric-icon"></i>
+      <div class="metric-label">Pending Jobs</div>
+      <div class="metric-value">{{ pending_jobs }}</div>
+    </div>
+  </div>
+  <div class="col-md-4">
+    <div class="metric-card bg-gradient-green shadow-sm">
+      <i class="fa-solid fa-circle-check metric-icon"></i>
+      <div class="metric-label">Completed</div>
+      <div class="metric-value">{{ completed_jobs }}</div>
     </div>
   </div>
 </div>
-{% endblock %}
 
+<!-- Pending Services Table -->
+<div class="dash-card">
+  <div class="d-flex justify-content-between align-items-center mb-3">
+    <h5 class="mb-0"><i class="fa-solid fa-list-check text-warning me-2"></i>Pending Services</h5>
+    <span class="badge bg-warning text-dark">{{ pending_list|length }} pending</span>
+  </div>
+  {% if pending_list %}
+  <div class="table-responsive">
+    <table class="table table-premium mb-0">
+      <thead>
+        <tr>
+          <th>Service Type</th>
+          <th>Customer</th>
+          <th>Assigned To</th>
+          <th>Action</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for s in pending_list %}
+        <tr>
+          <td class="fw-medium">
+            {{ s.get_service_type_display }}
+            {% if s.service_type == 'custom' and s.custom_description %}
+              <div class="small text-muted mt-1" style="max-width: 250px;">
+                <i class="fa-solid fa-note-sticky me-1"></i>{{ s.custom_description|truncatechars:100 }}
+              </div>
+            {% endif %}
+          </td>
+          <td>{{ s.customer.first_name|default:s.customer.username }}</td>
+          <td>
+            {% if s.assigned_mechanic %}
+              <span class="badge-status badge-in-progress">{{ s.assigned_mechanic.first_name|default:s.assigned_mechanic.username }}</span>
+            {% else %}
+              <span class="badge-status badge-pending">Unassigned</span>
+            {% endif %}
+          </td>
+          <td>
+            <a class="btn btn-premium btn-sm" href="{% url 'services_assign' s.id %}">
+              <i class="fa-solid fa-user-pen me-1"></i>Assign
+            </a>
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+  {% else %}
+  <div class="text-center py-4">
+    <i class="fa-solid fa-check-double fa-2x text-success mb-2"></i>
+    <p class="text-muted mb-0">All caught up! No pending services.</p>
+  </div>
+  {% endif %}
+</div>
+{% endblock %}

@@ -2,25 +2,29 @@
 {% block content %}
 <div class="row justify-content-center">
   <div class="col-md-6">
-    <div class="card shadow-sm">
-      <div class="card-body p-4">
-        <h4 class="mb-1">Update Service Status</h4>
-        <p class="text-muted">{{ service.get_service_type_display }}</p>
+    <div class="form-card shadow-sm">
+      <div class="form-card-header text-center">
+        <i class="fa-solid fa-arrows-rotate fa-2x mb-2" style="opacity:0.7;"></i>
+        <h4 class="fw-bold mb-1">Update Service Status</h4>
+        <p class="small mb-0 text-white-50">{{ service.get_service_type_display }} · Customer: {{ service.customer.first_name|default:service.customer.username }}</p>
+      </div>
+      <div class="form-card-body">
         <form method="post">
           {% csrf_token %}
-          <div class="mb-3">
-            <label class="form-label" for="id_status">Status</label>
+          <div class="mb-4">
+            <label class="form-label fw-semibold" for="id_status">New Status</label>
             {{ form.status }}
             {% if form.status.errors %}
               <div class="text-danger small mt-1">{{ form.status.errors|striptags }}</div>
             {% endif %}
           </div>
-          <button type="submit" class="btn btn-primary">Save</button>
-          <a href="{% url 'dashboard_mechanic' %}" class="btn btn-outline-secondary ms-2">Cancel</a>
+          <button type="submit" class="btn btn-premium w-100 py-2 shadow-sm">
+            <i class="fa-solid fa-check me-1"></i> Save Status
+          </button>
+          <a href="{% url 'dashboard_mechanic' %}" class="btn btn-outline-secondary w-100 mt-2">Cancel</a>
         </form>
       </div>
     </div>
   </div>
 </div>
 {% endblock %}
-

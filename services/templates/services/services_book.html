@@ -2,24 +2,61 @@
 {% block content %}
 <div class="row justify-content-center">
   <div class="col-md-6">
-    <div class="card shadow-sm">
-      <div class="card-body p-4">
-        <h4 class="mb-3">Book a Service</h4>
+    <div class="form-card shadow-sm">
+      <div class="form-card-header text-center">
+        <i class="fa-solid fa-calendar-plus fa-2x mb-2" style="opacity:0.7;"></i>
+        <h4 class="fw-bold mb-1">Book a Service</h4>
+        <p class="small mb-0 text-white-50">Select a service type and we'll get it scheduled for you.</p>
+      </div>
+      <div class="form-card-body">
         <form method="post">
           {% csrf_token %}
-          <div class="mb-3">
-            <label class="form-label" for="id_service_type">Service Type</label>
+          <div class="mb-4">
+            <label class="form-label fw-semibold" for="service_type_select">Service Type</label>
             {{ form.service_type }}
             {% if form.service_type.errors %}
               <div class="text-danger small mt-1">{{ form.service_type.errors|striptags }}</div>
             {% endif %}
           </div>
-          <button type="submit" class="btn btn-primary">Submit</button>
-          <a href="{% url 'dashboard_customer' %}" class="btn btn-outline-secondary ms-2">Cancel</a>
+          
+          <div class="mb-4" id="custom_details_section" style="display: none;">
+            <label class="form-label fw-semibold" for="id_custom_description">Service Details</label>
+            {{ form.custom_description }}
+            {% if form.custom_description.errors %}
+              <div class="text-danger small mt-1">{{ form.custom_description.errors|striptags }}</div>
+            {% endif %}
+            <div class="form-text">Please describe the problem or service you need.</div>
+          </div>
+
+          <button type="submit" class="btn btn-premium w-100 py-2 shadow-sm">
+            <i class="fa-solid fa-check me-1"></i> Confirm Booking
+          </button>
+          <a href="{% url 'dashboard_customer' %}" class="btn btn-outline-secondary w-100 mt-2">Cancel</a>
         </form>
       </div>
     </div>
   </div>
 </div>
-{% endblock %}
 
+<script>
+  document.addEventListener('DOMContentLoaded', function() {
+    const serviceSelect = document.getElementById('service_type_select');
+    const customSection = document.getElementById('custom_details_section');
+    
+    function toggleCustomSection() {
+      if (serviceSelect.value === 'custom') {
+        customSection.style.display = 'block';
+        customSection.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+      } else {
+        customSection.style.display = 'none';
+      }
+    }
+    
+    // Run on change
+    serviceSelect.addEventListener('change', toggleCustomSection);
+    
+    // Run on load in case of form errors
+    toggleCustomSection();
+  });
+</script>
+{% endblock %}

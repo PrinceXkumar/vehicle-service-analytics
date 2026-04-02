@@ -66,12 +66,22 @@ class Service(models.Model):
     SERVICE_TYRE_REPLACEMENT = 'tyre_replacement'
     SERVICE_BRAKE_INSPECTION = 'brake_inspection'
     SERVICE_GENERAL_CHECKUP = 'general_checkup'
+    SERVICE_ENGINE_TUNEUP = 'engine_tuneup'
+    SERVICE_AC_SERVICE = 'ac_service'
+    SERVICE_SUSPENSION_REPAIR = 'suspension_repair'
+    SERVICE_BATTERY_REPLACEMENT = 'battery_replacement'
+    SERVICE_CUSTOM = 'custom'
 
     SERVICE_TYPE_CHOICES = [
         (SERVICE_OIL_CHANGE, 'Oil Change'),
         (SERVICE_TYRE_REPLACEMENT, 'Tyre Replacement'),
         (SERVICE_BRAKE_INSPECTION, 'Brake Inspection'),
         (SERVICE_GENERAL_CHECKUP, 'General Checkup'),
+        (SERVICE_ENGINE_TUNEUP, 'Engine Tune-up'),
+        (SERVICE_AC_SERVICE, 'AC Service & Repair'),
+        (SERVICE_SUSPENSION_REPAIR, 'Suspension Repair'),
+        (SERVICE_BATTERY_REPLACEMENT, 'Battery Replacement'),
+        (SERVICE_CUSTOM, 'Custom Service (Write query)'),
     ]
 
     STATUS_PENDING = 'pending'
@@ -86,6 +96,7 @@ class Service(models.Model):
 
     customer = models.ForeignKey(User, on_delete=models.CASCADE, related_name='booked_services')
     service_type = models.CharField(max_length=50, choices=SERVICE_TYPE_CHOICES)
+    custom_description = models.TextField(blank=True, null=True, help_text="Provide details if selecting Custom Service")
     status = models.CharField(max_length=20, choices=STATUS_CHOICES, default=STATUS_PENDING)
     assigned_mechanic = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True, related_name='assigned_services')
     created_at = models.DateTimeField(auto_now_add=True)

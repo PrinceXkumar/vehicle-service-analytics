@@ -1,10 +1,287 @@
 {% extends "services/base.html" %}
+{% load static %}
 
 {% block content %}
-<div class="container mt-4">
-    <div class="card shadow p-4">
-        <h2 class="text-center">🚗 Vehicle Service Analytics System</h2>
-        <p class="text-center">Welcome! Track and manage vehicle services, mechanics, and customers.</p>
+<style>
+  /* Hero Section */
+  .hero-section {
+    background: linear-gradient(rgba(15, 23, 42, 0.65), rgba(15, 23, 42, 0.8)),
+                url("{% static 'services/images/home_car_bg.jpg' %}");
+    background-size: cover;
+    background-position: center bottom;
+    background-attachment: fixed;
+    border-radius: 24px;
+    padding: 7rem 2rem;
+    color: white;
+    text-align: center;
+    margin-bottom: 4rem;
+    position: relative;
+    overflow: hidden;
+  }
+  .hero-title {
+    font-size: 3.8rem;
+    font-weight: 800;
+    margin-bottom: 1.5rem;
+    letter-spacing: -1.5px;
+    text-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
+  }
+  .hero-subtitle {
+    font-size: 1.25rem;
+    color: #e2e8f0;
+    max-width: 750px;
+    margin: 0 auto 2.5rem;
+    font-weight: 400;
+    line-height: 1.7;
+    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+  }
+  .hero-badge {
+    display: inline-block;
+    background: rgba(124, 58, 237, 0.25);
+    border: 1px solid rgba(124, 58, 237, 0.4);
+    color: #c4b5fd;
+    padding: 0.4rem 1.2rem;
+    border-radius: 50px;
+    font-size: 0.85rem;
+    font-weight: 600;
+    margin-bottom: 1.5rem;
+    backdrop-filter: blur(4px);
+  }
+
+  /* Feature Cards */
+  .feature-card {
+    background: white;
+    border: 1px solid #e2e8f0;
+    border-radius: 16px;
+    padding: 2.5rem;
+    height: 100%;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+  }
+  .feature-card:hover {
+    transform: translateY(-8px);
+    box-shadow: 0 20px 40px -10px rgba(0, 0, 0, 0.08);
+  }
+  .feature-icon {
+    width: 56px;
+    height: 56px;
+    border-radius: 14px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.4rem;
+    margin-bottom: 1.5rem;
+  }
+  .icon-customer { background: #ede9fe; color: #7c3aed; }
+  .icon-mechanic { background: #dbeafe; color: #2563eb; }
+  .icon-manager  { background: #d1fae5; color: #059669; }
+
+  /* Section Titles */
+  .section-title {
+    font-weight: 700;
+    font-size: 2rem;
+    margin-bottom: 0.75rem;
+    text-align: center;
+  }
+  .section-subtitle {
+    color: #64748b;
+    text-align: center;
+    margin-bottom: 3rem;
+    font-size: 1.05rem;
+  }
+
+  /* How It Works */
+  .step-card {
+    text-align: center;
+    padding: 2rem;
+  }
+  .step-number {
+    width: 48px;
+    height: 48px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, var(--secondary-blue), var(--accent-violet));
+    color: white;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 700;
+    font-size: 1.2rem;
+    margin-bottom: 1.2rem;
+  }
+
+  /* Stats Bar */
+  .stats-bar {
+    background: var(--primary-navy);
+    border-radius: 20px;
+    padding: 3rem 2rem;
+    color: white;
+  }
+  .stat-value {
+    font-size: 2.5rem;
+    font-weight: 800;
+    color: #c4b5fd;
+  }
+  .stat-label {
+    color: #94a3b8;
+    font-size: 0.9rem;
+    font-weight: 500;
+  }
+
+  /* ML Prediction Teaser */
+  .ml-teaser {
+    background: linear-gradient(135deg, #1e1b4b 0%, var(--primary-navy) 100%);
+    border-radius: 20px;
+    padding: 4rem 2rem;
+    color: white;
+    position: relative;
+    overflow: hidden;
+  }
+  .ml-teaser::before {
+    content: "";
+    position: absolute;
+    top: -40%;
+    right: -20%;
+    width: 400px;
+    height: 400px;
+    background: radial-gradient(circle, rgba(124, 58, 237, 0.15), transparent 70%);
+  }
+</style>
+
+<!-- Hero Section -->
+<div class="hero-section shadow-lg">
+  <div class="position-relative">
+    <span class="hero-badge"><i class="fa-solid fa-sparkles me-1"></i> AI-Powered Analytics</span>
+    <h1 class="hero-title">Intelligent Vehicle Care with AutoInsight</h1>
+      The most comprehensive AI-powered analytics platform for vehicle owners and service centers to
+      predict future needs and optimize safety.
+    <div class="d-flex justify-content-center gap-3 flex-wrap">
+      <a href="{% url 'signup' %}" class="btn btn-premium btn-lg px-5 shadow">Get Started Free</a>
+      <a href="{% url 'login' %}" class="btn btn-outline-light btn-lg px-5">Sign In</a>
     </div>
+  </div>
+</div>
+
+<!-- Features Section -->
+<div class="mb-5">
+  <h2 class="section-title">Designed for Every Role</h2>
+  <p class="section-subtitle">Powerful tools tailored for customers, mechanics, and service managers.</p>
+  <div class="row g-4">
+    <div class="col-md-4">
+      <div class="feature-card">
+        <div class="feature-icon icon-customer">
+          <i class="fa-solid fa-user-tag"></i>
+        </div>
+        <h4 class="fw-bold mb-3">For Customers</h4>
+        <p class="text-muted mb-0">
+          Book services instantly, track real-time progress of your vehicle, and get AI-predicted next service dates.
+        </p>
+      </div>
+    </div>
+    <div class="col-md-4">
+      <div class="feature-card">
+        <div class="feature-icon icon-mechanic">
+          <i class="fa-solid fa-screwdriver-wrench"></i>
+        </div>
+        <h4 class="fw-bold mb-3">For Mechanics</h4>
+        <p class="text-muted mb-0">
+          Stay organized with assigned jobs, update service statuses instantly, and track your personal performance metrics.
+        </p>
+      </div>
+    </div>
+    <div class="col-md-4">
+      <div class="feature-card">
+        <div class="feature-icon icon-manager">
+          <i class="fa-solid fa-chart-line"></i>
+        </div>
+        <h4 class="fw-bold mb-3">For Managers</h4>
+        <p class="text-muted mb-0">
+          Monitor entire shop performance with advanced analytics, assign tasks effectively, and export detailed business reports.
+        </p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- How It Works -->
+<div class="mb-5">
+  <h2 class="section-title">How It Works</h2>
+  <p class="section-subtitle">Simple, efficient, and transparent — from booking to completion.</p>
+  <div class="row g-4">
+    <div class="col-md-3">
+      <div class="step-card">
+        <div class="step-number">1</div>
+        <h5 class="fw-bold">Sign Up</h5>
+        <p class="text-muted small">Create an account and choose your role — Customer, Mechanic, or Manager.</p>
+      </div>
+    </div>
+    <div class="col-md-3">
+      <div class="step-card">
+        <div class="step-number">2</div>
+        <h5 class="fw-bold">Book Service</h5>
+        <p class="text-muted small">Customers book services and the system notifies managers instantly.</p>
+      </div>
+    </div>
+    <div class="col-md-3">
+      <div class="step-card">
+        <div class="step-number">3</div>
+        <h5 class="fw-bold">Get Assigned</h5>
+        <p class="text-muted small">Managers assign the best mechanic based on workload and performance.</p>
+      </div>
+    </div>
+    <div class="col-md-3">
+      <div class="step-card">
+        <div class="step-number">4</div>
+        <h5 class="fw-bold">Track & Analyze</h5>
+        <p class="text-muted small">Everyone gets real-time updates and analytics on their personalized dashboard.</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ML Prediction Teaser -->
+<div class="ml-teaser shadow-lg mb-5">
+  <div class="row align-items-center">
+    <div class="col-lg-7 position-relative">
+      <span class="hero-badge mb-3"><i class="fa-solid fa-brain me-1"></i> Machine Learning</span>
+      <h2 class="fw-bold mb-3">Predict Your Next Service</h2>
+      <p class="text-white-50 mb-4">
+        Our intelligent prediction engine analyzes your service history to estimate when your vehicle
+        will need its next service and how much it might cost — so you're never caught off guard.
+      </p>
+      <a href="{% url 'signup' %}" class="btn btn-premium px-4">Try It Now</a>
+    </div>
+    <div class="col-lg-5 text-center mt-4 mt-lg-0">
+      <div class="d-flex flex-column gap-3">
+        <div class="bg-white bg-opacity-10 rounded-3 p-3 text-start" style="backdrop-filter: blur(8px); border: 1px solid rgba(255,255,255,0.1);">
+          <div class="small text-white-50 mb-1"><i class="fa-solid fa-calendar-check me-1"></i> Predicted Next Service</div>
+          <div class="fw-bold fs-5">~45 days from last visit</div>
+        </div>
+        <div class="bg-white bg-opacity-10 rounded-3 p-3 text-start" style="backdrop-filter: blur(8px); border: 1px solid rgba(255,255,255,0.1);">
+          <div class="small text-white-50 mb-1"><i class="fa-solid fa-indian-rupee-sign me-1"></i> Estimated Cost</div>
+          <div class="fw-bold fs-5">₹2,500 – ₹4,000</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Stats Bar -->
+<div class="stats-bar shadow-lg mb-5">
+  <div class="row text-center">
+    <div class="col-6 col-md-3 mb-3 mb-md-0">
+      <div class="stat-value">500+</div>
+      <div class="stat-label">Monthly Services</div>
+    </div>
+    <div class="col-6 col-md-3 mb-3 mb-md-0">
+      <div class="stat-value">98%</div>
+      <div class="stat-label">Customer Satisfaction</div>
+    </div>
+    <div class="col-6 col-md-3">
+      <div class="stat-value">15+</div>
+      <div class="stat-label">Expert Mechanics</div>
+    </div>
+    <div class="col-6 col-md-3">
+      <div class="stat-value">24/7</div>
+      <div class="stat-label">AI-Powered Tracking</div>
+    </div>
+  </div>
 </div>
 {% endblock %}
