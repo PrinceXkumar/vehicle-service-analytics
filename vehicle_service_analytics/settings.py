@@ -82,10 +82,13 @@ WSGI_APPLICATION = 'vehicle_service_analytics.wsgi.application'
 # https://docs.djangoproject.com/en/5.2/ref/settings/#databases
 
 # Use PostgreSQL for production (Vercel), SQLite for development
-if os.environ.get('DATABASE_URL'):
+# Vercel automatically provides POSTGRES_URL or DATABASE_URL.
+db_url = os.environ.get('POSTGRES_URL') or os.environ.get('DATABASE_URL')
+
+if db_url:
     import dj_database_url
     DATABASES = {
-        'default': dj_database_url.parse(os.environ.get('DATABASE_URL'))
+        'default': dj_database_url.config(default=db_url, ssl_require=True)
     }
 else:
     DATABASES = {
