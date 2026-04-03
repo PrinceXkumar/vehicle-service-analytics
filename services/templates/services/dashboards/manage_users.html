@@ -1,0 +1,148 @@
+{% extends "services/base.html" %}
+
+{% block content %}
+<div class="page-header">
+    <div>
+        <h4><i class="fa-solid fa-users-gear text-primary me-2"></i>User Management</h4>
+        <span class="badge-role bg-gradient-violet text-white mt-2">Administrator Control Panel</span>
+    </div>
+    <a href="{% url 'dashboard_manager' %}" class="btn btn-outline-secondary">
+        <i class="fa-solid fa-arrow-left me-1"></i> Back to Dashboard
+    </a>
+</div>
+
+<!-- Search Bar -->
+<div class="dash-card mb-4">
+    <form method="GET" action="{% url 'manage_users' %}" class="row g-3 align-items-center">
+        <div class="col-md-10">
+            <div class="input-group">
+                <span class="input-group-text bg-white border-end-0"><i class="fa-solid fa-magnifying-glass text-muted"></i></span>
+                <input type="text" name="q" class="form-control border-start-0 ps-0" placeholder="Search by username, email or name..." value="{{ query }}">
+            </div>
+        </div>
+        <div class="col-md-2">
+            <button type="submit" class="btn btn-premium w-100">Search</button>
+        </div>
+    </form>
+</div>
+
+<!-- User Table -->
+<div class="dash-card">
+    <div class="table-responsive">
+        <table class="table table-premium mb-0">
+            <thead>
+                <tr>
+                    <th>User</th>
+                    <th>Email</th>
+                    <th>Current Role</th>
+                    <th>Update Role</th>
+                    <th>Joined</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for u in users %}
+                <tr id="user-row-{{ u.id }}">
+                    <td>
+                        <div class="d-flex align-items-center">
+                            <div class="avatar-circle me-2 bg-gradient-blue text-white d-flex align-items-center justify-content-center" style="width: 32px; height: 32px; border-radius: 50%; font-size: 0.8rem; font-weight: 700;">
+                                {{ u.username|slice:":1"|upper }}
+                            </div>
+                            <div>
+                                <div class="fw-bold text-dark">{{ u.username }}</div>
+                                <div class="small text-muted">{{ u.get_full_name|default:"No Name" }}</div>
+                            </div>
+                        </div>
+                    </td>
+                    <td>{{ u.email }}</td>
+                    <td>
+                        {% with role=u.profile.role %}
+                            <span class="badge-status {% if role == 'admin' %}bg-gradient-rose text-white{% elif role == 'manager' %}bg-gradient-blue text-white{% elif role == 'mechanic' %}badge-in-progress{% else %}badge-pending{% endif %}">
+                                {{ u.profile.get_role_display }}
+                            </span>
+                        {% endwith %}
+                    </td>
+                    <td>
+                        <select class="form-select form-select-sm role-selector" data-user-id="{{ u.id }}" style="width: 140px; border-radius: 8px;">
+                            {% for role_val, role_label in role_choices %}
+                                <option value="{{ role_val }}" {% if u.profile.role == role_val %}selected{% endif %}>{{ role_label }}</option>
+                            {% endfor %}
+                        </select>
+                    </td>
+                    <td class="small text-muted">{{ u.date_joined|date:"M d, Y" }}</td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="5" class="text-center py-5">
+                        <i class="fa-solid fa-user-slash fa-3x text-muted mb-3 d-block"></i>
+                        <p class="text-muted">No users found matching your search.</p>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<!-- Toast Notification -->
+<div class="position-fixed bottom-0 end-0 p-3" style="z-index: 1100">
+    <div id="roleToast" class="toast align-items-center text-white bg-dark border-0" role="alert" aria-live="assertive" aria-atomic="true">
+        <div class="d-flex">
+            <div class="toast-body" id="toastMessage">Role updated successfully!</div>
+            <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast" aria-label="Close"></button>
+        </div>
+    </div>
+</div>
+
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.querySelectorAll('.role-selector').forEach(select => {
+    select.addEventListener('change', function() {
+        const userId = this.getAttribute('data-user-id');
+        const newRole = this.value;
+        const toastEl = document.getElementById('roleToast');
+        const toast = new bootstrap.Toast(toastEl);
+        const toastMsg = document.getElementById('toastMessage');
+
+        // Show loading state
+        this.disabled = true;
+
+        const formData = new FormData();
+        formData.append('user_id', userId);
+        formData.append('role', newRole);
+        formData.append('csrfmiddlewaretoken', '{{ csrf_token }}');
+
+        fetch("{% url 'update_user_role' %}", {
+            method: 'POST',
+            body: formData,
+            headers: {
+                'X-Requested-With': 'XMLHttpRequest'
+            }
+        })
+        .then(response => response.json())
+        .then(data => {
+            this.disabled = false;
+            if (data.status === 'success') {
+                toastMsg.textContent = data.message;
+                toastEl.classList.remove('bg-danger');
+                toastEl.classList.add('bg-dark');
+                toast.show();
+                // Optionally reload or update the status badge dynamically
+                setTimeout(() => location.reload(), 1000);
+            } else {
+                toastMsg.textContent = "Error: " + data.message;
+                toastEl.classList.add('bg-danger');
+                toast.show();
+            }
+        })
+        .catch(error => {
+            this.disabled = false;
+            toastMsg.textContent = "An error occurred.";
+            toastEl.classList.add('bg-danger');
+            toast.show();
+        });
+    });
+});
+</script>
+{% endblock %}

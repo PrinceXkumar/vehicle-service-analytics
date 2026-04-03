@@ -7,9 +7,14 @@
     <h4><i class="fa-solid fa-shield-halved text-primary me-2"></i>Welcome, {{ request.user.first_name|default:request.user.username }}</h4>
     <span class="badge-role bg-gradient-blue text-white mt-2">Manager Dashboard</span>
   </div>
-  <a href="{% url 'analytics_dashboard' %}" class="btn btn-premium">
-    <i class="fa-solid fa-chart-bar me-1"></i> Analytics Dashboard
-  </a>
+  <div class="d-flex gap-2">
+    <a href="{% url 'manage_users' %}" class="btn btn-outline-primary">
+      <i class="fa-solid fa-users me-1"></i> Manage Users
+    </a>
+    <a href="{% url 'analytics_dashboard' %}" class="btn btn-premium">
+      <i class="fa-solid fa-chart-bar me-1"></i> Analytics Dashboard
+    </a>
+  </div>
 </div>
 
 <!-- Metric Cards -->

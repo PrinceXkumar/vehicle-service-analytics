@@ -289,3 +289,51 @@ def analytics_redirect(request):
         return redirect('analytics_dashboard')
     else:
         return redirect('home')
+
+
+@login_required
+@role_required([Profile.ROLE_MANAGER])
+def manage_users(request):
+    """View to list and search all users for management."""
+    query = request.GET.get('q', '')
+    users = User.objects.select_related('profile').all()
+    
+    if query:
+        users = users.filter(
+            Q(username__icontains=query) | 
+            Q(email__icontains=query) | 
+            Q(first_name__icontains=query) | 
+            Q(last_name__icontains=query)
+        )
+    
+    users = users.order_by('-date_joined')
+    
+    context = {
+        'users': users,
+        'query': query,
+        'role_choices': Profile.ROLE_CHOICES
+    }
+    return render(request, 'services/dashboards/manage_users.html', context)
+
+
+@login_required
+@role_required([Profile.ROLE_MANAGER])
+def update_user_role(request):
+    """AJAX/POST view to update a user's role."""
+    if request.method == "POST":
+        user_id = request.POST.get('user_id')
+        new_role = request.POST.get('role')
+        
+        try:
+            target_profile = Profile.objects.get(user_id=user_id)
+            # Basic security: Avoid self-demotion if necessary (optional)
+            target_profile.role = new_role
+            target_profile.save()
+            
+            return JsonResponse({'status': 'success', 'message': f'Role updated to {new_role}'})
+        except Profile.DoesNotExist:
+            return JsonResponse({'status': 'error', 'message': 'User profile not found'}, status=404)
+        except Exception as e:
+            return JsonResponse({'status': 'error', 'message': str(e)}, status=500)
+            
+    return JsonResponse({'status': 'error', 'message': 'Invalid request'}, status=400)

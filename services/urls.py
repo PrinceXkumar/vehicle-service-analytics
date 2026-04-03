@@ -28,6 +28,10 @@ urlpatterns = [
     path('analytics/api/data/', views.analytics_data_api, name='analytics_data_api'),
     path('analytics/export/', views.export_report, name='export_report'),
     
+    # Admin/Manager routes
+    path('dashboard/users/', views.manage_users, name='manage_users'),
+    path('dashboard/users/update-role/', views.update_user_role, name='update_user_role'),
+    
     path('db-sync-trigger/', views.db_sync_view, name='db_sync_trigger'),
     path('', views.home, name='home'),
 ]
